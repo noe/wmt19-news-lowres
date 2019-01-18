@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Script to download the WMT19 news translation data for Kazakh
+
+
+news_commentary(){
+  BASE_URL='http://data.statmt.org/news-commentary/v14/training/'
+  KAZAK_FILES=$(curl -s $BASE_URL | grep kk | sed 's,.*href="\(.*\)">n.*,\1,g')
+  for i in $KAZAK_FILES; do
+     wget $BASE_URL/$i
+  done
+}
+
+wikititles(){
+  wget 'http://data.statmt.org/wikititles/v1/wikititles-v1.kk-en.tsv.gz'
+}
+
+nazarbayev_uni(){
+  # An English-Kazakh crawled corpus of about 100k sentences, prepared
+  # by Bagdat Myrzakhmetov of Nazarbayev University. The corpus is distributed
+  # as a tsv file with the original URLs included, as well as an alignment score.
+  wget 'http://data.statmt.org/wmt19/translation-task/kazakhtv.kk-en.tsv.gz'
+
+  # A crawled Russian-Kazakh corpus of about 5M sentences, also prepared
+  # by Bagdat Myrzakhmetov.
+  wget 'http://data.statmt.org/wmt19/translation-task/crawl.kk-ru.gz'
+}
+
+
+news_commentary
+wikititles
+nazarbayev_uni
