@@ -35,3 +35,8 @@ wikititles
 nazarbayev_uni
 
 for i in *.gz; do gunzip $i; done
+
+mv crawl.kk-ru crawl.kk-ru.tsv
+
+
+
