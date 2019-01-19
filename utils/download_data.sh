@@ -2,11 +2,14 @@
 
 # Script to download the WMT19 news translation data for Kazakh
 
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  alias sed=gsed
+fi
 
 news_commentary(){
   BASE_URL='http://data.statmt.org/news-commentary/v14/training/'
-  KAZAK_FILES=$(curl -s $BASE_URL | grep kk | sed 's,.*href="\(.*\)">n.*,\1,g')
-  for i in $KAZAK_FILES; do
+  KAZAKH_FILES=$(curl -s $BASE_URL | grep --color=never kk | sed 's,.*href="\(.*\)">n.*,\1,g')
+  for i in $KAZAKH_FILES; do
      wget $BASE_URL/$i
   done
 }
@@ -30,3 +33,5 @@ nazarbayev_uni(){
 news_commentary
 wikititles
 nazarbayev_uni
+
+for i in *.gz; do gunzip $i; done
