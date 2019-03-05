@@ -59,7 +59,7 @@ done
 # dev sets
 for devset in dev2019 ; do
  echo $devset
- echo $dev2018 
+ echo $dev2019
  for lang  in $src $tgt; do
      side="ref"
      if [ $lang = $tgt ]; then
