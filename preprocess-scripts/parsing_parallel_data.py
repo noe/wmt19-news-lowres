@@ -29,9 +29,9 @@ def read_file_line_by_line(file, file_src, file_trg):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--file_to_parse", help="The name of the corpus")
-    parser.add_argument("--first_parsed_file", help="The swapped corpus")
-    parser.add_argument("--second_parsed_file", help="JSON of definitional pairs")
+    parser.add_argument("--file_to_parse", help="file to be parsed")
+    parser.add_argument("--first_parsed_file", help="name of first file in which data is parsed")
+    parser.add_argument("--second_parsed_file", help="name of second file in which data is parsed")
     args = parser.parse_args()
 
     file_to_parse = args.file_to_parse
