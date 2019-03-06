@@ -47,6 +47,7 @@ download_dev_data(){
   wget http://data.statmt.org/wmt19/translation-task/dev.tgz
   tar xzvf dev.tgz
   mv dev/* .
+  rm dev/.history-bhaddow
   rmdir dev
 }
 
