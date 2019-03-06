@@ -1,23 +1,24 @@
-
-dev_file_en=newsdev2019.tc.en
-dev_file_kk=newsdev2019.tc.kk
+#!/bin/bash
 
 
+get_seeded_random(){
+  seed="$1"
+  openssl enc -aes-256-ctr -pass pass:"$seed" -nosalt \
+    </dev/zero 2>/dev/null
+}
 
 
-head -n 1566 $dev_file_en > newsdev2019_1.tc.en
-tail -n +1567 $dev_file_en > newstest2019.tc.en
-
-mv newsdev2019_1.tc.en $dev_file_en
-
-
-head -n 1566 $dev_file_kk > newsdev2019_1.tc.kk
-tail -n +1567 $dev_file_kk > newstest2019.tc.kk
-
-mv newsdev2019_1.tc.kk $dev_file_kk
-
+deterministic_shuf_split(){
+  SEED=$1
+  FILE=$2
+  TMP_FILE=$(mktemp)
+  cat $FILE | shuf --random-source=<(get_seeded_random $SEED) > $TMP_FILE
+  head -1566 $TMP_FILE > dev.$FILE
+  tail -n+1567 $TMP_FILE > test.$FILE
+  rm $TMP_FILE
+}
 
 
-
-
+deterministic_shuf_split 42 newsdev2019.tc.en
+deterministic_shuf_split 42 newsdev2019.tc.kk
 
