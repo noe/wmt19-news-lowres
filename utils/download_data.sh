@@ -30,17 +30,19 @@ nazarbayev_uni(){
 }
 
 
-news_commentary
-wikititles
-nazarbayev_uni
+download_training_data(){
+  news_commentary
+  wikititles
+  nazarbayev_uni
+  for i in *.gz; do gunzip $i; done
+  mv crawl.kk-ru crawl.kk-ru.tsv
+  # Remove the files that overlap with the development data.
+  # See this message to the WMT group to know more:
+  # https://groups.google.com/forum/#!searchin/wmt-tasks/kazakh|sort:date/wmt-tasks/5-uzVfMRNR0/t35358ArBgAJ
+  rm news-commentary-v14.en-kk.tsv
+}
 
-for i in *.gz; do gunzip $i; done
 
-mv crawl.kk-ru crawl.kk-ru.tsv
-
-
-# Remove the files that overlap with the development data.
-# See this message to the WMT group to know more:
-# https://groups.google.com/forum/#!searchin/wmt-tasks/kazakh|sort:date/wmt-tasks/5-uzVfMRNR0/t35358ArBgAJ
-rm news-commentary-v14.en-kk.tsv
-
+mkdir train
+download_training_data
+cd ..
