@@ -46,13 +46,17 @@ download_training_data(){
 download_dev_data(){
   wget http://data.statmt.org/wmt19/translation-task/dev.tgz
   tar xzvf dev.tgz
+  mv dev/* .
+  rmdir dev
 }
 
 mkdir -p train
+cd train
 download_training_data
 cd ..
 
 mkdir -p dev
+cd dev
 download_dev_data
 cd ..
 
