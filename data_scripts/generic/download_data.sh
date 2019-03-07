@@ -12,14 +12,21 @@ news_commentary(){
   for i in $KAZAKH_FILES; do
      wget $BASE_URL/$i
   done
-  #Download Russian-English data
+}
+
+news_commentary_ruen(){
   wget 'http://data.statmt.org/news-commentary/v14/training/news-commentary-v14.en-ru.tsv.gz'
 }
 
-iwikititles(){
+
+wikititles(){
   wget 'http://data.statmt.org/wikititles/v1/wikititles-v1.kk-en.tsv.gz'
+}
+
+wikititles_ruen(){
   wget 'http://data.statmt.org/wikititles/v1/wikititles-v1.ru-en.tsv.gz'
 }
+
 
 nazarbayev_uni(){
   # An English-Kazakh crawled corpus of about 100k sentences, prepared
@@ -50,26 +57,60 @@ yandex_corpus(){
 
 un_corpus(){
  #Cookies may expire
- wget --load-cookies cookie.txt https://cms.unov.org/UNCorpus/en/Download?file=UNv1.0.en-ru.tar.gz.00
- wget --load-cookies cookie.txt https://cms.unov.org/UNCorpus/en/Download?file=UNv1.0.en-ru.tar.gz.01
- wget --load-cookies cookie.txt https://cms.unov.org/UNCorpus/en/Download?file=UNv1.0.en-ru.tar.gz.02 
- cat UNv1.0.en-ru.tar.gz.* > un.en-ru.tar.gz
+ wget --load-cookies cookies.txt https://cms.unov.org/UNCorpus/en/Download?file=UNv1.0.en-ru.tar.gz.00
+ wget --load-cookies cookies.txt https://cms.unov.org/UNCorpus/en/Download?file=UNv1.0.en-ru.tar.gz.01
+ wget --load-cookies cookies.txt https://cms.unov.org/UNCorpus/en/Download?file=UNv1.0.en-ru.tar.gz.02 
+ cat 'Download?file=UNv1.0.en-ru.tar.gz.00' 'Download?file=UNv1.0.en-ru.tar.gz.01' 'Download?file=UNv1.0.en-ru.tar.gz.02' > un.en-ru.tar.gz
+ more 'Download?file=UNv1.0.en-ru.tar.gz.00' 'Download?file=UNv1.0.en-ru.tar.gz.01' 'Download?file=UNv1.0.en-ru.tar.gz.02'
 }
 
 
-#news_commentary
-#wikititles
-#nazarbayev_uni
-#commoncrawl
-#paracrawl
-#yandex_corpus
-un_corpus
+download_training_data(){
+  news_commentary
+  wikititles
+  nazarbayev_uni
+  for i in *.gz; do gunzip $i; done
+  mv crawl.kk-ru crawl.kk-ru.tsv
+  # Remove the files that overlap with the development data.
+  # See this message to the WMT group to know more:
+  # https://groups.google.com/forum/#!searchin/wmt-tasks/kazakh|sort:date/wmt-tasks/5-uzVfMRNR0/t35358ArBgAJ
+  rm news-commentary-v14.en-kk.tsv
 
-for i in *.gz; do gunzip $i; done
-for i in *.tgz; do tar -xvzf $i; done
-for i in *.zip; do unzip $i; done
+  #Download ru-en data in a subfolder
+  mkdir -p ru-en 
+  cd ru-en
+  
+  news_commentary_ruen
+  wikititles_ruen
+  commoncrawl
+  paracrawl
+  yandex_corpus
+  un_corpus
+  
+  for i in *.gz; do gunzip $i; done
+  for i in *.tgz; do tar -xvzf $i; done
+  for i in *.zip; do unzip $i; done
 
-mv crawl.kk-ru crawl.kk-ru.tsv
+  cd ..
+}
 
+
+download_dev_data(){
+  wget http://data.statmt.org/wmt19/translation-task/dev.tgz
+  tar xzvf dev.tgz
+  mv dev/* .
+  rm dev/.history-bhaddow
+  rmdir dev
+}
+
+mkdir -p train
+cd train
+download_training_data
+cd ..
+
+mkdir -p dev
+cd dev
+download_dev_data
+cd ..
 
 

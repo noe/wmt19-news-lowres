@@ -1,0 +1,13 @@
+# HTTP Cookie File downloaded with cookies.txt by Genuinous @genuinous
+# This file can be used by wget, curl, aria2c and other standard compliant tools.
+# Usage Examples:
+#   1) wget -x --load-cookies cookies.txt "https://cms.unov.org/UNCorpus/en/DownloadOverview"
+#   2) curl --cookie cookies.txt "https://cms.unov.org/UNCorpus/en/DownloadOverview"
+#   3) aria2c --load-cookies cookies.txt "https://cms.unov.org/UNCorpus/en/DownloadOverview"
+#
+cms.unov.org	FALSE	/	FALSE	0	__RequestVerificationToken_L1VOQ29ycHVz0	y7k6L0ytndiSjIvuuaEeZ6NmL9rqn9Q0qrj8_UkB52-wR7yt3UpOf4t_7II1_wNk_3kIn0xv8HdqJmkuAK1T9Q8lQn01
+cms.unov.org	FALSE	/	FALSE	1554473936	UserId	Carlos Escolano
+cms.unov.org	FALSE	/	TRUE	1551975165	NSLB	ffffffffc3a0406945525d5f4f58455e445a4a423660
+cms.unov.org	FALSE	/	FALSE	1567714351	_pk_ref.10.5310	%5B%22%22%2C%22%22%2C1551946352%2C%22http%3A%2F%2Fwww.statmt.org%2Fwmt19%2Ftranslation-task.html%22%5D
+cms.unov.org	FALSE	/	FALSE	1551948174	_pk_ses.10.5310	*
+cms.unov.org	FALSE	/	FALSE	1585382369	_pk_id.10.5310	a9e32ba68080f5e5.1551427169.3.1551946375.1551946352.
