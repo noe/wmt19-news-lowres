@@ -21,10 +21,9 @@ get_seeded_random(){
 
 ### Function to tokenize and normalize punctuation of a file ##################
 tokenize(){
-  PREFIX=$1
-  LANG=$2
-
-  LANG_FLAG=$LANG
+  local PREFIX=$1
+  local LANG=$2
+  local LANG_FLAG=$LANG
   if [ "$LANG" == "kk" ]; then
     LANG_FLAG=ru
   fi
@@ -36,21 +35,21 @@ tokenize(){
 
 ### Function to clean a corpus ################################################
 clean_corpus(){
- PREFIX=$1
- LANG1=$2
- LANG2=$3
- SUFFIX=$4
- MIN_LEN=2
- MAX_LEN=80
- LC_ALL=C $MOSES_SCRIPTS/training/clean-corpus-n.perl \
+  local PREFIX=$1
+  local LANG1=$2
+  local LANG2=$3
+  local SUFFIX=$4
+  local MIN_LEN=2
+  local MAX_LEN=80
+  LC_ALL=C $MOSES_SCRIPTS/training/clean-corpus-n.perl \
         $PREFIX $LANG1 $LANG2 $PREFIX.$SUFFIX $MIN_LEN $MAX_LEN $PREFIX.retained
 }
 
 
 ### Function to train a truecasing model ######################################
 train_truecaser(){
-  FILE=$1
-  MODEL=$2
+  local FILE=$1
+  local MODEL=$2
   # it works also with cyrillic script
   LC_ALL=C $MOSES_SCRIPTS/recaser/train-truecaser.perl -model $MODEL -corpus $FILE
 }
@@ -58,8 +57,8 @@ train_truecaser(){
 
 ### Function to apply a truecasing model ######################################
 truecase(){
-  FILE=$1
-  MODEL=$2
+  local FILE=$1
+  local MODEL=$2
   # it works also with cyrillic script
   cat $FILE | LC_ALL=C $MOSES_SCRIPTS/recaser/truecase.perl -model $MODEL
 }
