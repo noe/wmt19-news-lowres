@@ -54,16 +54,16 @@ for LANG in en kk
 do
   log "Processing training [$LANG] data..."
   tokenize $PREFIX $LANG > $PREFIX.tok.$LANG
+  rm $PREFIX.$LANG
   train_truecaser $PREFIX.tok.$LANG $OUTPUT_DIR/truecasing.$LANG
   truecase $PREFIX.tok.$LANG $OUTPUT_DIR/truecasing.$LANG > $PREFIX.tok.tc.$LANG
+  rm $PREFIX.tok.$LANG
 done
 
 # Remove too long and too short sentences
 log "Cleaning corpus..."
 clean_corpus $PREFIX.tok.tc en kk clean
-
-# Remove byproducts
-rm $PREFIX.tok.{en,kk} $PREFIX.tok.tc.{en,kk}
+rm $PREFIX.tok.tc.{en,kk}
 
 log "*** Training data is prepared at $PREFIX.tok.tc.clean.{en,kk}"
 
@@ -98,12 +98,15 @@ for LANG in en kk
 do
   log "Processing dev/test [$LANG] data..."
   tokenize $DEVTEST_PREFIX $LANG > $DEVTEST_PREFIX.tok.$LANG
+  rm $DEVTEST_PREFIX.$LANG
   truecase $DEVTEST_PREFIX.tok.$LANG $OUTPUT_DIR/truecasing.$LANG > $DEVTEST_PREFIX.tok.tc.$LANG
+  rm $DEVTEST_PREFIX.tok.$LANG
 done
 
 log "Splitting test and dev sets..."
 deterministic_shuf_split 42 $DEVTEST_PREFIX.tok.tc kk
 deterministic_shuf_split 42 $DEVTEST_PREFIX.tok.tc en
+rm $DEVTEST_PREFIX.tok.tc.{en,kk}
 
 log "*** Development data is prepared at $OUTPUT_DIR/dev.{en,kk}"
 log "*** Test data is prepared at $OUTPUT_DIR/test.{en,kk}"
