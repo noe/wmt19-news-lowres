@@ -89,7 +89,7 @@ TMP_TRAIN=$(mktemp)
 touch $TMP_TRAIN
 
 # Include Kazakh TV dataset
-cat $DOWNLOAD_DIR/train/kazakhtv.kk-en.tsv >> $TMP_TRAIN
+sed 's,\(.*\)\t\(.*\)\t\(.*\)\t\(.*\)\t\(.*\),\1\t\2,g' $DOWNLOAD_DIR/train/kazakhtv.kk-en.tsv >> $TMP_TRAIN
 
 # Include news commentary (reverse it to be kk-en)
 sed 's,\(.*\)\t\(.*\),\2\t\1,g' $DOWNLOAD_DIR/train/news-commentary-v14-wmt19.en-kk.tsv >> $TMP_TRAIN
