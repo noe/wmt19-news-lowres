@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 
 : ${1?"First argument is the directory where all data was downloaded"}
@@ -70,10 +70,10 @@ log "*** Training data is prepared at $PREFIX.tok.tc.clean.{en,kk}"
 
 ### Function to split development at test set #################################
 deterministic_shuf_split(){
-  SEED=$1
-  PREFIX=$2
-  LANG=$3
-  TMP_FILE=$(mktemp)
+  local SEED=$1
+  local PREFIX=$2
+  local LANG=$3
+  local TMP_FILE=$(mktemp)
   cat $PREFIX.$LANG | shuf --random-source=<(get_seeded_random $SEED) > $TMP_FILE
   head -1566 $TMP_FILE > $OUTPUT_DIR/dev.$LANG
   tail -n+1567 $TMP_FILE > $OUTPUT_DIR/test.$LANG
@@ -87,11 +87,11 @@ DEVTEST_PREFIX=$OUTPUT_DIR/dev_test
 log "Extracting text from SGM files..."
 cat $DOWNLOAD_DIR/dev/newsdev2019-kken-ref.en.sgm \
    | LC_ALL=C $MOSES_SCRIPTS/ems/support/input-from-sgm.perl \
-   > $OUTPUT_DIR/$DEVTEST_PREFIX.en
+   > $DEVTEST_PREFIX.en
 
 cat $DOWNLOAD_DIR/dev/newsdev2019-kken-src.kk.sgm \
    | LC_ALL=C $MOSES_SCRIPTS/ems/support/input-from-sgm.perl \
-   > $OUTPUT_DIR/$DEVTEST_PREFIX.kk
+   > $DEVTEST_PREFIX.kk
 
 
 for LANG in en kk
