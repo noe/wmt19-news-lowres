@@ -62,10 +62,13 @@ done
 log "Cleaning corpus..."
 clean_corpus $PREFIX.tok.tc en kk clean
 
+# Remove byproducts
+rm $PREFIX.tok.{en,kk} $PREFIX.tok.tc.{en,kk}
+
 log "*** Training data is prepared at $PREFIX.tok.tc.clean.{en,kk}"
 
-### Prepare test and development data #########################################
 
+### Function to split development at test set #################################
 deterministic_shuf_split(){
   SEED=$1
   PREFIX=$2
@@ -77,20 +80,23 @@ deterministic_shuf_split(){
   rm $TMP_FILE
 }
 
+### Prepare test and development data #########################################
+
 DEVTEST_PREFIX=$OUTPUT_DIR/dev_test
 
+log "Extracting text from SGM files..."
 cat $DOWNLOAD_DIR/dev/newsdev2019-kken-ref.en.sgm \
-   | $MOSES_SCRIPTS/ems/support/input-from-sgm.perl \
+   | LC_ALL=C $MOSES_SCRIPTS/ems/support/input-from-sgm.perl \
    > $OUTPUT_DIR/$DEVTEST_PREFIX.en
 
 cat $DOWNLOAD_DIR/dev/newsdev2019-kken-src.kk.sgm \
-   | $MOSES_SCRIPTS/ems/support/input-from-sgm.perl \
+   | LC_ALL=C $MOSES_SCRIPTS/ems/support/input-from-sgm.perl \
    > $OUTPUT_DIR/$DEVTEST_PREFIX.kk
 
 
 for LANG in en kk
 do
-  log "Processing training [$LANG] data..."
+  log "Processing dev/test [$LANG] data..."
   tokenize $DEVTEST_PREFIX $LANG > $DEVTEST_PREFIX.tok.$LANG
   truecase $DEVTEST_PREFIX.tok.$LANG $OUTPUT_DIR/truecasing.$LANG > $DEVTEST_PREFIX.tok.tc.$LANG
 done
