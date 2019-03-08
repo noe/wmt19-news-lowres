@@ -43,7 +43,7 @@ clean_corpus(){
   local MAX_LEN=80
   # local RETAINED=$PREFIX.retained
   local RETAINED=""
-  LC_ALL=C $MOSES_SCRIPTS/training/clean-corpus-n.perl \
+  LC_ALL=C $MOSES_SCRIPTS/training/clean-corpus-n.perl -ratio 5 \
         $PREFIX $LANG1 $LANG2 $PREFIX.$SUFFIX $MIN_LEN $MAX_LEN $RETAINED
 }
 
