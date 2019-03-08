@@ -49,48 +49,63 @@ paracrawl(){
 }
 
 yandex_corpus(){
-  #Download link expires on 09/03/2019.
-  wget 'https://translate.yandex.net/corpus/1mcorpus.zip?st=bjSS7KI_WN7235LdmPjvtA&e=1552140741&ui=ru'
-  mv '1mcorpus.zip?st=bjSS7KI_WN7235LdmPjvtA&e=1552140741&ui=ru' 1mcorpus.zip
-
+  # Downloading the Yandex corpus requires logging in, after which you are given a link
+  # that is valid for 2 days. This download link expires on 11/03/2019.
+  # The yandex corpus can be downloaded from https://translate.yandex.ru/corpus?lang=en
+  wget 'https://translate.yandex.net/corpus/1mcorpus.zip?st=nCzaPNr7sOSr3DtWiG3buA&e=1552324310&ui=ru' -O 1mcorpus.zip
 }
 
-un_corpus(){
- #Cookies may expire
- wget --load-cookies cookies.txt https://cms.unov.org/UNCorpus/en/Download?file=UNv1.0.en-ru.tar.gz.00
- wget --load-cookies cookies.txt https://cms.unov.org/UNCorpus/en/Download?file=UNv1.0.en-ru.tar.gz.01
- wget --load-cookies cookies.txt https://cms.unov.org/UNCorpus/en/Download?file=UNv1.0.en-ru.tar.gz.02 
- cat 'Download?file=UNv1.0.en-ru.tar.gz.00' 'Download?file=UNv1.0.en-ru.tar.gz.01' 'Download?file=UNv1.0.en-ru.tar.gz.02' > un.en-ru.tar.gz
- more 'Download?file=UNv1.0.en-ru.tar.gz.00' 'Download?file=UNv1.0.en-ru.tar.gz.01' 'Download?file=UNv1.0.en-ru.tar.gz.02'
+un_corpus_ruen(){
+  # Downloading the United Nations corpus requires logging in. Here we capture
+  # the cookies associated with a session in which we downloaded it
+  # on 2019.03.08; cookies may expire at any time.
+  # The UN corpus can be downloaded from https://cms.unov.org/UNCorpus/
+
+  wget --header="Host: cms.unov.org" --header="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36" --header="Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8" --header="Accept-Language: es-ES,es;q=0.9,en-GB;q=0.8,en;q=0.7,zh-CN;q=0.6,zh;q=0.5,ca;q=0.4" --header="Referer: https://cms.unov.org/UNCorpus/en/DownloadOverview" --header="Cookie: NSLB=ffffffffc3a0406845525d5f4f58455e445a4a423660; __RequestVerificationToken_L1VOQ29ycHVz0=MVD3fjKngNbOobvhslYkxrg0XNhvgumtj-FO8mhBnQYvdSafRuVWF33TpobEEXx3r-GO7CjgAXl-pjsGjBCBvVlp34Y1; UserId=Noe Casas" --header="Connection: keep-alive" "https://cms.unov.org/UNCorpus/en/Download?file=UNv1.0.en-ru.tar.gz.00" -O "UNv1.0.en-ru.tar.gz.00" -c
+
+  wget --header="Host: cms.unov.org" --header="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36" --header="Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8" --header="Accept-Language: es-ES,es;q=0.9,en-GB;q=0.8,en;q=0.7,zh-CN;q=0.6,zh;q=0.5,ca;q=0.4" --header="Referer: https://cms.unov.org/UNCorpus/en/DownloadOverview" --header="Cookie: NSLB=ffffffffc3a0406845525d5f4f58455e445a4a423660; __RequestVerificationToken_L1VOQ29ycHVz0=MVD3fjKngNbOobvhslYkxrg0XNhvgumtj-FO8mhBnQYvdSafRuVWF33TpobEEXx3r-GO7CjgAXl-pjsGjBCBvVlp34Y1; UserId=Noe Casas" --header="Connection: keep-alive" "https://cms.unov.org/UNCorpus/en/Download?file=UNv1.0.en-ru.tar.gz.01" -O "UNv1.0.en-ru.tar.gz.01" -c
+
+  wget --header="Host: cms.unov.org" --header="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36" --header="Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8" --header="Accept-Language: es-ES,es;q=0.9,en-GB;q=0.8,en;q=0.7,zh-CN;q=0.6,zh;q=0.5,ca;q=0.4" --header="Referer: https://cms.unov.org/UNCorpus/en/DownloadOverview" --header="Cookie: NSLB=ffffffffc3a0406845525d5f4f58455e445a4a423660; __RequestVerificationToken_L1VOQ29ycHVz0=MVD3fjKngNbOobvhslYkxrg0XNhvgumtj-FO8mhBnQYvdSafRuVWF33TpobEEXx3r-GO7CjgAXl-pjsGjBCBvVlp34Y1; UserId=Noe Casas" --header="Connection: keep-alive" "https://cms.unov.org/UNCorpus/en/Download?file=UNv1.0.en-ru.tar.gz.02" -O "UNv1.0.en-ru.tar.gz.02" -c
+ 
+ cat UNv1.0.en-ru.tar.gz.00 UNv1.0.en-ru.tar.gz.01 UNv1.0.en-ru.tar.gz.02 > un.en-ru.tar.gz
+ rm UNv1.0.en-ru.tar.gz.00 UNv1.0.en-ru.tar.gz.01 UNv1.0.en-ru.tar.gz.02
 }
 
-
-download_training_data(){
-  news_commentary
-  wikititles
-  nazarbayev_uni
-  for i in *.gz; do gunzip $i; done
-  mv crawl.kk-ru crawl.kk-ru.tsv
-  # Remove the files that overlap with the development data.
-  # See this message to the WMT group to know more:
-  # https://groups.google.com/forum/#!searchin/wmt-tasks/kazakh|sort:date/wmt-tasks/5-uzVfMRNR0/t35358ArBgAJ
-  rm news-commentary-v14.en-kk.tsv
-
-  #Download ru-en data in a subfolder
-  mkdir -p ru-en 
-  cd ru-en
-  
+download_ruen_data(){
   news_commentary_ruen
   wikititles_ruen
   commoncrawl
   paracrawl
   yandex_corpus
-  un_corpus
+  un_corpus_ruen
   
+  for i in *.tar.gz *.tgz; do tar -xvzf $i; done
   for i in *.gz; do gunzip $i; done
-  for i in *.tgz; do tar -xvzf $i; done
   for i in *.zip; do unzip $i; done
+}
 
+download_kken_data(){
+  news_commentary
+  wikititles
+  nazarbayev_uni
+  for i in *.gz; do gunzip $i; done
+  mv crawl.kk-ru crawl.kk-ru.tsv
+
+  # Remove the files that overlap with the development data.
+  rm news-commentary-v14.en-kk.tsv
+  # See this message to the WMT group to know more:
+  # https://groups.google.com/forum/#!searchin/wmt-tasks/kazakh|sort:date/wmt-tasks/5-uzVfMRNR0/t35358ArBgAJ
+}
+
+download_training_data(){
+  mkdir -p kk-en
+  cd kk-en
+  download_kken_data
+  cd ..
+
+  mkdir -p ru-en 
+  cd ru-en
+  download_ruen_data  
   cd ..
 }
 
