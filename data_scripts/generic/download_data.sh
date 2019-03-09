@@ -82,6 +82,7 @@ download_ruen_data(){
   for i in *.tar.gz *.tgz; do tar -xvzf $i; done
   for i in *.gz; do gunzip $i; done
   for i in *.zip; do unzip $i; done
+  rm training-parallel-commoncrawl.tgz paracrawl-release1.en-ru.zipporah0-dedup-clean.tgz
 }
 
 download_kken_data(){
