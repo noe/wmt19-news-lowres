@@ -6,13 +6,25 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   alias sed=gsed
 fi
 
-news_commentary(){
+news_commentary_kk_all(){
   BASE_URL='http://data.statmt.org/news-commentary/v14/training/'
   KAZAKH_FILES=$(curl -s $BASE_URL | grep --color=never kk | sed 's,.*href="\(.*\)">n.*,\1,g')
   for i in $KAZAKH_FILES; do
      wget $BASE_URL/$i
   done
 }
+
+news_commentary_kken(){
+  # See this message to the WMT group to know more:
+  # https://groups.google.com/forum/#!searchin/wmt-tasks/kazakh|sort:date/wmt-tasks/5-uzVfMRNR0/t35358ArBgAJ
+  wget 'http://data.statmt.org/news-commentary/v14/training/news-commentary-v14-wmt19.en-kk.tsv.gz'
+}
+
+
+news_commentary_kkru(){
+  wget 'http://data.statmt.org/news-commentary/v14/training/news-commentary-v14.kk-ru.tsv.gz'
+}
+
 
 news_commentary_ruen(){
   wget 'http://data.statmt.org/news-commentary/v14/training/news-commentary-v14.en-ru.tsv.gz'
@@ -33,10 +45,6 @@ nazarbayev_uni(){
   # by Bagdat Myrzakhmetov of Nazarbayev University. The corpus is distributed
   # as a tsv file with the original URLs included, as well as an alignment score.
   wget 'http://data.statmt.org/wmt19/translation-task/kazakhtv.kk-en.tsv.gz'
-
-  # A crawled Russian-Kazakh corpus of about 5M sentences, also prepared
-  # by Bagdat Myrzakhmetov.
-  wget 'http://data.statmt.org/wmt19/translation-task/crawl.kk-ru.gz'
 }
 
 
@@ -85,17 +93,21 @@ download_ruen_data(){
   rm training-parallel-commoncrawl.tgz paracrawl-release1.en-ru.zipporah0-dedup-clean.tgz
 }
 
+download_kkru_data(){
+  # A crawled Russian-Kazakh corpus of about 5M sentences, also prepared
+  # by Bagdat Myrzakhmetov.
+  wget 'http://data.statmt.org/wmt19/translation-task/crawl.kk-ru.gz'
+  gunzip crawl.kk-ru.gz
+  mv crawl.kk-ru crawl.kk-ru.tsv
+
+  news_commentary_kkru
+}
+
 download_kken_data(){
-  news_commentary
+  news_commentary_kken
   wikititles
   nazarbayev_uni
   for i in *.gz; do gunzip $i; done
-  mv crawl.kk-ru crawl.kk-ru.tsv
-
-  # Remove the files that overlap with the development data.
-  rm news-commentary-v14.en-kk.tsv
-  # See this message to the WMT group to know more:
-  # https://groups.google.com/forum/#!searchin/wmt-tasks/kazakh|sort:date/wmt-tasks/5-uzVfMRNR0/t35358ArBgAJ
 }
 
 download_training_data(){
@@ -107,6 +119,11 @@ download_training_data(){
   mkdir -p ru-en 
   cd ru-en
   download_ruen_data  
+  cd ..
+
+  mkdir -p kk-ru
+  cd kk-ru
+  download_kkru_data
   cd ..
 }
 
