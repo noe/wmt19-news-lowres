@@ -36,7 +36,10 @@ clean_corpus_aggressive(){
 # Prepare En-Ru data ##########################################################
 
 prepare_enru_data(){
-  ENRU_DOWNLOAD_DIR=$DOWNLOAD_DIR/ru-en
+  ENRU_DOWNLOAD_DIR=$(realpath $DOWNLOAD_DIR/ru-en)
+  ENRU_OUTPUT_DIR=$(realpath $OUTPUT_DIR/en-ru)
+
+  mkdir -p $ENRU_OUTPUT_DIR
 
   cd $ENRU_DOWNLOAD_DIR
 
@@ -45,8 +48,8 @@ prepare_enru_data(){
   clean_corpus_aggressive paracrawl-release1.en-ru.zipporah0-dedup-clean en ru clean
   clean_corpus_aggressive corpus.en_ru.1m en ru clean
 
-  EN_FILES=en-ru/UNv1.0.en-ru.clean.en commoncrawl.ru-en.clean.en paracrawl-release1.en-ru.zipporah0-dedup-clean.clean.en corpus.en_ru.1m.clean.en
-  RU_FILES=en-ru/UNv1.0.en-ru.clean.ru commoncrawl.ru-en.clean.ru paracrawl-release1.en-ru.zipporah0-dedup-clean.clean.ru corpus.en_ru.1m.clean.ru
+  EN_FILES="en-ru/UNv1.0.en-ru.clean.en commoncrawl.ru-en.clean.en paracrawl-release1.en-ru.zipporah0-dedup-clean.clean.en corpus.en_ru.1m.clean.en"
+  RU_FILES="en-ru/UNv1.0.en-ru.clean.ru commoncrawl.ru-en.clean.ru paracrawl-release1.en-ru.zipporah0-dedup-clean.clean.ru corpus.en_ru.1m.clean.ru"
 
   TMP_FILE=$(mktemp)
   paste <(cat $EN_FILES) <(cat $RU_FILES) \
@@ -54,8 +57,8 @@ prepare_enru_data(){
        | shuf --random-source=<(get_seeded_random 111) \
        > $TMP_FILE
 
-  cut -f 1 > $OUTPUT_DIR/corpus.en-ru.en
-  cut -f 2 > $OUTPUT_DIR/corpus.en-ru.ru
+  cut -f 1 $TMP_FILE > $ENRU_OUTPUT_DIR/corpus.en-ru.en
+  cut -f 2 $TMP_FILE > $ENRU_OUTPUT_DIR/corpus.en-ru.ru
 
   rm $EN_FILES $RU_FILES $TMP_FILE
 }
