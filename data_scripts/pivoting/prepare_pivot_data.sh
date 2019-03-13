@@ -98,7 +98,7 @@ prepare_kkru_data(){
   cd $KKRU_DOWNLOAD_DIR
   
   TMP_CRAWL_DIR=$(mktemp -d)
-  mkdir -p %TMP_CRAWL_DIR
+  mkdir -p $TMP_CRAWL_DIR
 
   $TMP_CRAWL_PREFIX=$TMP_CRAWL_DIR/crawl.kk-ru
 
@@ -118,6 +118,6 @@ prepare_kkru_data(){
 }
 
 
-#prepare_enru_data
+prepare_enru_data
 prepare_kkru_data
 
