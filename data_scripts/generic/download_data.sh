@@ -23,6 +23,7 @@ news_commentary_kken(){
 
 news_commentary_kkru(){
   wget 'http://data.statmt.org/news-commentary/v14/training/news-commentary-v14.kk-ru.tsv.gz'
+  gunzip news-commentary-v14.kk-ru.tsv.gz
 }
 
 
