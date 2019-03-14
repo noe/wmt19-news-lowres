@@ -7,11 +7,19 @@
 DOWNLOAD_DIR=$1
 OUTPUT_DIR=$2
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+KKRU_DOWNLOAD_DIR=$(realpath $DOWNLOAD_DIR/kk-ru)
+KKRU_OUTPUT_DIR=$OUTPUT_DIR/kk-ru
+KKRU_OUTPUT_PREFIX=$KKRU_OUTPUT_DIR/corpus.kk-ru
+ENRU_DOWNLOAD_DIR=$(realpath $DOWNLOAD_DIR/ru-en)
+ENRU_OUTPUT_DIR=$OUTPUT_DIR/en-ru
+ENRU_OUTPUT_PREFIX=$ENRU_OUTPUT_DIR/corpus.en-ru
+
 
 # load common functions
 . $SCRIPT_DIR/../generic/common.sh
 
 
+### Function to clean garbage from crawled corpora ############################
 clean_crawled_tsv(){
   grep -v '____' \
    | grep -v '\-\-\-\-' \
@@ -24,6 +32,8 @@ clean_crawled_tsv(){
    | $SCRIPT_DIR/filter_numeric.py --tsv --max-ratio 0.2
 }
 
+### Function to clean corpus by length with aggressive settings ###############
+### (for large corpora)
 clean_corpus_aggressive(){
   local PREFIX=$1
   local LANG1=$2
@@ -38,11 +48,8 @@ clean_corpus_aggressive(){
 }
 
 
-# Prepare En-Ru data ##########################################################
-
-prepare_enru_data(){
-  local ENRU_DOWNLOAD_DIR=$(realpath $DOWNLOAD_DIR/ru-en)
-  local ENRU_OUTPUT_DIR=$OUTPUT_DIR/en-ru
+# Function to assemble En-Ru train, dev and test sets #########################
+assemble_enru_data(){
 
   mkdir -p $ENRU_OUTPUT_DIR
 
@@ -79,17 +86,14 @@ prepare_enru_data(){
 
   cat $TMP_CORPUS | shuf --random-source=<(get_seeded_random 111) -o $TMP_CORPUS
 
-  split_tsv_train_dev_test $TMP_CORPUS $ENRU_OUTPUT_DIR/corpus.en-ru en ru 4000 1000
+  split_tsv_train_dev_test $TMP_CORPUS $ENRU_OUTPUT_PREFIX en ru 4000 1000
 
   rm $TMP_CORPUS
 }
 
 
-# Prepare Kk-Ru data ##########################################################
-
-prepare_kkru_data(){
-  local KKRU_DOWNLOAD_DIR=$(realpath $DOWNLOAD_DIR/kk-ru)
-  local KKRU_OUTPUT_DIR=$OUTPUT_DIR/kk-ru
+# Function to assemble Kk-Ru train, dev and test sets #########################
+assemble_kkru_data(){
 
   mkdir -p $KKRU_OUTPUT_DIR
 
@@ -114,12 +118,38 @@ prepare_kkru_data(){
        | shuf --random-source=<(get_seeded_random 333) \
        > $TMP_CORPUS
 
-  split_tsv_train_dev_test $TMP_CORPUS $KKRU_OUTPUT_DIR/corpus.kk-ru kk ru 4000 1000
+  split_tsv_train_dev_test $TMP_CORPUS $KKRU_OUTPUT_PREFIX kk ru 4000 1000
 
   rm -rf $TMP_CRAWL_DIR $TMP_CORPUS
 }
 
 
-prepare_kkru_data
-prepare_enru_data
+### Function to tokenize and truecase training and dev data ###################
+prepare_data(){
+  local PREFIX=$1
+  local SRC=$2
+  local TGT=$3
+  local OUTPUT_DIR=$(dirname $PREFIX)
+
+  for LANG in $SRC $TGT; do
+    # Process training data
+    log "Processing training [$LANG] data..."
+    tokenize $PREFIX.train $LANG > $PREFIX.train.tok.$LANG
+    rm $PREFIX.train.$LANG
+    train_truecaser $PREFIX.train.tok.$LANG $OUTPUT_DIR/truecasing.$LANG
+    truecase $PREFIX.train.tok.$LANG $OUTPUT_DIR/truecasing.$LANG > $PREFIX.train.tok.tc.$LANG
+    rm $PREFIX.train.tok.$LANG
+
+    # Process dev data
+    tokenize $PREFIX.dev $LANG > $PREFIX.dev.tok.$LANG
+    rm $PREFIX.dev.$LANG
+    truecase $PREFIX.dev.tok.$LANG $OUTPUT_DIR/truecasing.$LANG > $PREFIX.dev.tok.tc.$LANG
+    rm $PREFIX.dev.tok.$LANG
+  done
+}
+
+assemble_kkru_data
+prepare_data $KKRU_OUTPUT_PREFIX kk ru
+assemble_enru_data
+prepare_data $ENRU_OUTPUT_PREFIX en ru
 
