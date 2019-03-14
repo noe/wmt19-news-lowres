@@ -42,7 +42,7 @@ clean_corpus_aggressive(){
 
 prepare_enru_data(){
   local ENRU_DOWNLOAD_DIR=$(realpath $DOWNLOAD_DIR/ru-en)
-  local ENRU_OUTPUT_DIR=$(realpath $OUTPUT_DIR/en-ru)
+  local ENRU_OUTPUT_DIR=$OUTPUT_DIR/en-ru
 
   mkdir -p $ENRU_OUTPUT_DIR
 
@@ -89,7 +89,7 @@ prepare_enru_data(){
 
 prepare_kkru_data(){
   local KKRU_DOWNLOAD_DIR=$(realpath $DOWNLOAD_DIR/kk-ru)
-  local KKRU_OUTPUT_DIR=$(realpath $OUTPUT_DIR/kk-ru)
+  local KKRU_OUTPUT_DIR=$OUTPUT_DIR/kk-ru
 
   mkdir -p $KKRU_OUTPUT_DIR
 
