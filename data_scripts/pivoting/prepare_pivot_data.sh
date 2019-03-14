@@ -7,7 +7,6 @@
 DOWNLOAD_DIR=$1
 OUTPUT_DIR=$2
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-SEED=3211
 
 # load common functions
 . $SCRIPT_DIR/../generic/common.sh
@@ -42,8 +41,8 @@ clean_corpus_aggressive(){
 # Prepare En-Ru data ##########################################################
 
 prepare_enru_data(){
-  ENRU_DOWNLOAD_DIR=$(realpath $DOWNLOAD_DIR/ru-en)
-  ENRU_OUTPUT_DIR=$(realpath $OUTPUT_DIR/en-ru)
+  local ENRU_DOWNLOAD_DIR=$(realpath $DOWNLOAD_DIR/ru-en)
+  local ENRU_OUTPUT_DIR=$(realpath $OUTPUT_DIR/en-ru)
 
   mkdir -p $ENRU_OUTPUT_DIR
 
@@ -64,7 +63,8 @@ prepare_enru_data(){
                                   ["corpus.en_ru.1m"]=1000000)
   # see hash tables in bash 4 at https://stackoverflow.com/a/3467959/674487
 
-  TMP_CORPUS=$(mktemp)
+  local TMP_CORPUS=$(mktemp)
+
   touch $TMP_CORPUS
   for corpus_prefix in "${!corpus_sample_size[@]}"; do
     clean_corpus_aggressive $corpus_prefix en ru clean
@@ -77,11 +77,9 @@ prepare_enru_data(){
     rm $corpus_prefix.clean.en $corpus_prefix.clean.ru
   done  
 
-  
   cat $TMP_CORPUS | shuf --random-source=<(get_seeded_random 111) -o $TMP_CORPUS
 
-  cut -f 1 $TMP_CORPUS > $ENRU_OUTPUT_DIR/corpus.en-ru.en
-  cut -f 2 $TMP_CORPUS > $ENRU_OUTPUT_DIR/corpus.en-ru.ru
+  split_tsv_train_dev_test $TMP_CORPUS $ENRU_OUTPUT_DIR/corpus.en-ru en ru 4000 1000
 
   rm $TMP_CORPUS
 }
@@ -90,17 +88,17 @@ prepare_enru_data(){
 # Prepare Kk-Ru data ##########################################################
 
 prepare_kkru_data(){
-  KKRU_DOWNLOAD_DIR=$(realpath $DOWNLOAD_DIR/kk-ru)
-  KKRU_OUTPUT_DIR=$(realpath $OUTPUT_DIR/kk-ru)
+  local KKRU_DOWNLOAD_DIR=$(realpath $DOWNLOAD_DIR/kk-ru)
+  local KKRU_OUTPUT_DIR=$(realpath $OUTPUT_DIR/kk-ru)
 
   mkdir -p $KKRU_OUTPUT_DIR
 
   cd $KKRU_DOWNLOAD_DIR
   
-  TMP_CRAWL_DIR=$(mktemp -d)
+  local TMP_CRAWL_DIR=$(mktemp -d)
   mkdir -p $TMP_CRAWL_DIR
 
-  $TMP_CRAWL_PREFIX=$TMP_CRAWL_DIR/crawl.kk-ru
+  local TMP_CRAWL_PREFIX=$TMP_CRAWL_DIR/crawl.kk-ru
 
   cut -f 1,2 crawl.kk-ru.tsv | sort -u | clean_crawled_tsv > $TMP_CRAWL_PREFIX.tsv
   cut -f 1 $TMP_CRAWL_PREFIX.tsv > $TMP_CRAWL_PREFIX.kk
@@ -108,16 +106,20 @@ prepare_kkru_data(){
 
   clean_corpus_aggressive $TMP_CRAWL_PREFIX kk ru clean
 
-  paste <(cat $TMP_CRAWL_PREFIX.kk) <(cat $TMP_CRAWL_PREFIX.ru) > $TMP_CRAWL_PREFIX.tsv
+  local TMP_CORPUS=$(mktemp)
+
+  paste <(cat $TMP_CRAWL_PREFIX.clean.kk) <(cat $TMP_CRAWL_PREFIX.clean.ru) > $TMP_CRAWL_PREFIX.tsv
   cat $TMP_CRAWL_PREFIX.tsv news-commentary-v14.kk-ru.tsv \
        | sort -u \
        | shuf --random-source=<(get_seeded_random 333) \
-       > $KKRU_OUTPUT_DIR
+       > $TMP_CORPUS
 
-  rm -rf $TMP_CRAWL_DIR
+  split_tsv_train_dev_test $TMP_CORPUS $ENRU_OUTPUT_DIR/corpus.kk-ru kk ru 4000 1000
+
+  rm -rf $TMP_CRAWL_DIR $TMP_CORPUS
 }
 
 
-prepare_enru_data
 prepare_kkru_data
+prepare_enru_data
 

@@ -64,3 +64,37 @@ truecase(){
   # it works also with cyrillic script
   cat $FILE | LC_ALL=C $MOSES_SCRIPTS/recaser/truecase.perl -model $MODEL
 }
+
+### Function to split a TSV corpus into training, dev and test sets ###########
+### (add suffixes to results: .train, .dev, .test)
+split_tsv_train_dev_test (){
+    local TSV_FILE=$1
+    local OUTPUT_PREFIX=$2
+    local SRC=$3
+    local TGT=$4
+    local DEV_LINES=$5
+    local TEST_LINES=$6
+
+    local TMP_TRAIN=$(mktemp)
+    local TMP_DEV=$(mktemp)
+    local TMP_TEST=$(mktemp)
+
+    local TOTAL_LINES=$(cat ${TSV_FILE} | wc -l)
+    local TRAIN_LINES=$(compute "${TOTAL_LINES} - ${DEV_LINES} -${TEST_LINES}")
+
+    head -${TEST_LINES} ${TSV_FILE} > "${TMP_TEST}"
+    tail -n+$(compute "${TEST_LINES} + 1") ${TSV_FILE} | head -${DEV_LINES} > "${TMP_DEV}"
+    tail -${TRAIN_LINES} ${TSV_FILE} > "${TMP_TRAIN}"
+
+    cut -f 1 $TMP_TRAIN > $OUTPUT_PREFIX.train.$SRC
+    cut -f 2 $TMP_TRAIN > $OUTPUT_PREFIX.train.$TGT
+
+    cut -f 1 $TMP_DEV > $OUTPUT_PREFIX.dev.$SRC
+    cut -f 2 $TMP_DEV > $OUTPUT_PREFIX.dev.$TGT
+
+    cut -f 1 $TMP_TEST > $OUTPUT_PREFIX.test.$SRC
+    cut -f 2 $TMP_TEST > $OUTPUT_PREFIX.test.$TGT
+
+    rm $TMP_TRAIN $TMP_DEV $TMP_TEST
+}
+
