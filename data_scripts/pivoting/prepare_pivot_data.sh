@@ -6,12 +6,14 @@
 
 DOWNLOAD_DIR=$1
 OUTPUT_DIR=$2
+mkdir -p $OUTPUT_DIR
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 KKRU_DOWNLOAD_DIR=$(realpath $DOWNLOAD_DIR/kk-ru)
-KKRU_OUTPUT_DIR=$OUTPUT_DIR/kk-ru
+KKRU_OUTPUT_DIR=$(realpath $OUTPUT_DIR)/kk-ru
 KKRU_OUTPUT_PREFIX=$KKRU_OUTPUT_DIR/corpus.kk-ru
 ENRU_DOWNLOAD_DIR=$(realpath $DOWNLOAD_DIR/ru-en)
-ENRU_OUTPUT_DIR=$OUTPUT_DIR/en-ru
+ENRU_OUTPUT_DIR=$(realpath $OUTPUT_DIR)/en-ru
 ENRU_OUTPUT_PREFIX=$ENRU_OUTPUT_DIR/corpus.en-ru
 
 
@@ -148,8 +150,10 @@ prepare_data(){
   done
 }
 
+
 assemble_kkru_data
 prepare_data $KKRU_OUTPUT_PREFIX kk ru
+
 assemble_enru_data
 prepare_data $ENRU_OUTPUT_PREFIX en ru
 
