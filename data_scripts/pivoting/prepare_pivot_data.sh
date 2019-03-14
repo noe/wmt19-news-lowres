@@ -114,7 +114,7 @@ prepare_kkru_data(){
        | shuf --random-source=<(get_seeded_random 333) \
        > $TMP_CORPUS
 
-  split_tsv_train_dev_test $TMP_CORPUS $ENRU_OUTPUT_DIR/corpus.kk-ru kk ru 4000 1000
+  split_tsv_train_dev_test $TMP_CORPUS $KKRU_OUTPUT_DIR/corpus.kk-ru kk ru 4000 1000
 
   rm -rf $TMP_CRAWL_DIR $TMP_CORPUS
 }
