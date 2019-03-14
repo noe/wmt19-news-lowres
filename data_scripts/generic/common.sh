@@ -65,6 +65,17 @@ truecase(){
   cat $FILE | LC_ALL=C $MOSES_SCRIPTS/recaser/truecase.perl -model $MODEL
 }
 
+
+#### Function to compute simple stuff ##############################
+compute() {
+    if hash bc 2>/dev/null; then
+        echo "$@" | bc
+    else
+        die 'Command "bc" is not available'
+    fi
+}
+
+
 ### Function to split a TSV corpus into training, dev and test sets ###########
 ### (add suffixes to results: .train, .dev, .test)
 split_tsv_train_dev_test (){
