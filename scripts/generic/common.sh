@@ -229,10 +229,15 @@ train_moses(){
   train_and_apply_bpe $MODEL_DIR/bpe_codes $TRAIN_DATA_PREFIX $SRC $TGT $JOINT_VOCAB_SIZE bpe
   apply_bpe $MODEL_DIR/bpe_codes $DEV_DATA_PREFIX $SRC $TGT bpe
 
+  log "Cleaning corpus (again)..."
+  # Clean again after BPE to ensure mgiza does not find any sentence with ratio > 9 (--> segfault)
+  LC_ALL=C $MOSES_SCRIPTS/training/clean-corpus-n.perl -ratio 9 \
+        ${TRAIN_DATA_PREFIX}.bpe $SRC $TGT ${TRAIN_DATA_PREFIX}.bpe.clean 2 80
+
   log "Training Language Model..."
   train_lm $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe $SRC $TGT
   log "Training Translation Model..."
-  train_translation $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe $SRC $TGT
+  train_translation $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe.clean $SRC $TGT
   log "Tuning..."
   tuning $MODEL_DIR ${DEV_DATA_PREFIX}.bpe $SRC $TGT
   log "Done."
