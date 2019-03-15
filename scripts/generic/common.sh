@@ -125,9 +125,24 @@ train_and_apply_bpe(){
   for LANG in $SRC $TGT; do
     cat $DATA_PREFIX.$LANG \
        | $SUBWORD_NMT_DIR/subword_nmt/learn_bpe.py -s $VOCAB_SIZE \
-       > $BPE_CODES.$LANG
+       > $BPE_CODES_PREFIX.$LANG
 
-    $SUBWORD_NMT_DIR/subword_nmt/apply_bpe.py -c $BPE_CODES.$LANG \
+    $SUBWORD_NMT_DIR/subword_nmt/apply_bpe.py -c $BPE_CODES_PREFIX.$LANG \
+       < $DATA_PREFIX.$LANG \
+       > ${DATA_PREFIX}.${SUFFIX}.${LANG}
+  done
+}
+
+### Function to apply BPE to a source and target corpora #####################
+apply_bpe(){
+  local BPE_CODES_PREFIX=$1
+  local DATA_PREFIX=$2
+  local SRC=$3
+  local TGT=$4
+  local SUFFIX=$5
+
+  for LANG in $SRC $TGT; do
+    $SUBWORD_NMT_DIR/subword_nmt/apply_bpe.py -c $BPE_CODES_PREFIX.$LANG \
        < $DATA_PREFIX.$LANG \
        > ${DATA_PREFIX}.${SUFFIX}.${LANG}
   done
@@ -200,20 +215,23 @@ tuning(){
 ### Function to train a Moses system end-to-end ##############################
 train_moses(){
   local MODEL_DIR=$1
-  local DATA_PREFIX=$2
-  local SRC=$3
-  local TGT=$4
-  local JOINT_VOCAB_SIZE=$5
+  local TRAIN_DATA_PREFIX=$2
+  local DEV_DATA_PREFIX=$3
+  local SRC=$4
+  local TGT=$5
+  local JOINT_VOCAB_SIZE=$6
 
   ## Note : DATA MUST BE ALREADY TOKENIZED AND TRUECASED BEFORE THIS
 
   log "Training BPE..."
-  train_and_apply_bpe $MODEL_DIR/bpe_codes $DATA_PREFIX $SRC $TGT $JOINT_VOCAB_SIZE bpe
+  train_and_apply_bpe $MODEL_DIR/bpe_codes $TRAIN_DATA_PREFIX $SRC $TGT $JOINT_VOCAB_SIZE bpe
+  apply_bpe $MODEL_DIR/bpe_codes $DEV_DATA_PREFIX $SRC $TGT bpe
+
   log "Training Language Model..."
-  train_lm $MODEL_DIR ${DATA_PREFIX}.bpe $SRC $TGT
+  train_lm $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe $SRC $TGT
   log "Training Translation Model..."
-  train_translation $MODEL_DIR ${DATA_PREFIX}.bpe $SRC $TGT
+  train_translation $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe $SRC $TGT
   log "Tuning..."
-  tuning $MODEL_DIR ${DATA_PREFIX}.bpe $SRC $TGT
+  tuning $MODEL_DIR ${DEV_DATA_PREFIX}.bpe $SRC $TGT
   log "Done."
 }
