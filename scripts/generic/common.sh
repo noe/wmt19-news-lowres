@@ -173,9 +173,11 @@ train_translation(){
 
   mkdir -p $MODEL_DIR/model
 
-  $MOSES_SCRIPTS/training/train-model.perl \
+  MODEL_DIR=$(realpath $MODEL_DIR)
+
+  LC_ALL=C $MOSES_SCRIPTS/training/train-model.perl \
      -root-dir $MODEL_DIR \
-     -corpus $DATA_PREFIX \
+     -corpus $(realpath $DATA_PREFIX) \
      -f $SRC -e $TGT \
      -alignment grow-diag-final-and \
      --score-options '--GoodTuring' \
@@ -199,7 +201,7 @@ tuning(){
   mkdir -p $MODEL_DIR/model
   mkdir -p $MODEL_DIR/tuning
 
-  $MOSES_SCRIPTS/training/mert-moses.pl \
+  LC_ALL=C $MOSES_SCRIPTS/training/mert-moses.pl \
       $DATA_PREFIX.$SRC $DATA_PREFIX.$TGT \
       $MOSES_DIR/moses $MODEL_DIR/model/moses.ini \
       --working-dir $MODEL_DIR/tuning \
