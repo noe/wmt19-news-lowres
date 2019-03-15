@@ -120,7 +120,7 @@ train_and_apply_bpe(){
   local VOCAB_SIZE=$5
   local SUFFIX=$6
 
-  mkdir -p $OUTPUT_DIR
+  mkdir -p $(dirname $BPE_CODES_PREFIX)
 
   for LANG in $SRC $TGT; do
     cat $DATA_PREFIX.$LANG \
