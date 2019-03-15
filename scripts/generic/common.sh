@@ -205,6 +205,8 @@ train_moses(){
   local TGT=$4
   local JOINT_VOCAB_SIZE=$5
 
+  ## Note : DATA MUST BE ALREADY TOKENIZED AND TRUECASED BEFORE THIS
+
   log "Training BPE..."
   train_and_apply_bpe $MODEL_DIR/bpe_codes $DATA_PREFIX $SRC $TGT $JOINT_VOCAB_SIZE bpe
   log "Training Language Model..."
