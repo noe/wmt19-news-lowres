@@ -1,4 +1,6 @@
 
+
+SUBWORD_NMT_DIR=/home/usuaris/veu/noe.casas/wmt19_lowres/tools/subword-nmt
 MOSES_DIR=/home/usuaris/veu/noe.casas/wmt19_lowres/tools/moses-4.0
 MOSES_SCRIPTS=$MOSES_DIR/scripts/
 
@@ -109,3 +111,107 @@ split_tsv_train_dev_test (){
     rm $TMP_TRAIN $TMP_DEV $TMP_TEST
 }
 
+### Function to train and apply BPE to a source and target corpora ############
+train_and_apply_bpe(){
+  local BPE_CODES_PREFIX=$1
+  local DATA_PREFIX=$2
+  local SRC=$3
+  local TGT=$4
+  local VOCAB_SIZE=$5
+  local SUFFIX=$6
+
+  mkdir -p $OUTPUT_DIR
+
+  for LANG in $SRC $TGT; do
+    cat $DATA_PREFIX.$LANG \
+       | $SUBWORD_NMT_DIR/subword_nmt/learn_bpe.py -s $VOCAB_SIZE \
+       > $BPE_CODES.$LANG
+
+    $SUBWORD_NMT_DIR/subword_nmt/apply_bpe.py -c $BPE_CODES.$LANG \
+       < $DATA_PREFIX.$LANG \
+       > ${DATA_PREFIX}.${SUFFIX}.${LANG}
+  done
+}
+
+
+### Function to train a language model of the target language #################
+### (it uses KenLM) ###########################################################
+train_lm(){
+  local MODEL_DIR=$1
+  local DATA_PREFIX=$2
+  local SRC=$3
+  local TGT=$4
+
+  mkdir -p $MODEL_DIR/lm
+
+  $MOSES_DIR/bin/lmplz -o 3 < $DATA_PREFIX.$TGT > $MODEL_DIR/lm/lm.arpa.$TGT
+  $MOSES_DIR/bin/build_binary $MODEL_DIR/lm/lm.arpa.$TGT $MODEL_DIR/lm/lm.blm.$TGT
+}
+
+
+### Function to train a Moses translation model ###############################
+train_translation(){
+  local MODEL_DIR=$1
+  local DATA_PREFIX=$2
+  local SRC=$3
+  local TGT=$4
+
+  mkdir -p $MODEL_DIR/model
+
+  $MOSES_SCRIPTS/training/train-model.perl \
+     -root-dir $MODEL_DIR \
+     -corpus $DATA_PREFIX \
+     -f $SRC -e $TGT \
+     -alignment grow-diag-final-and \
+     --score-options '--GoodTuring' \
+     -reordering msd-bidirectional-fe \
+     -reordering-factors 0-0 \
+     -translation-factors 0-0 \
+     -lm 0:5:$MODEL_DIR/lm/lm.blm.$TGT:8 \
+     -external-bin-dir $MOSES_DIR/tools \
+     -mgiza \
+     >& $MODEL_DIR/training.out
+}
+
+
+### Function to tune a Moses model ############################################
+tuning(){
+  local MODEL_DIR=$1
+  local DATA_PREFIX=$2
+  local SRC=$3
+  local TGT=$4
+
+  mkdir -p $MODEL_DIR/model
+  mkdir -p $MODEL_DIR/tuning
+
+  $MOSES_SCRIPTS/training/mert-moses.pl \
+      $DATA_PREFIX.$SRC $DATA_PREFIX.$TGT \
+      $MOSES_DIR/moses $MODEL_DIR/model/moses.ini \
+      --working-dir $MODEL_DIR/tuning \
+      --nbest 100 \
+      --mertdir $MOSES_DIR/bin/ \
+      --rootdir $MOSES_SCRIPTS \
+      -threads 16 \
+      --decoder-flags "-drop-unknown -mbr -threads 24 -mp -v 0" \
+      &> $MODEL_DIR/mert.out & 
+}
+
+
+### Function to train a Moses system end-to-end ##############################
+train_moses(){
+  local MODEL_DIR=$1
+  local DATA_PREFIX=$2
+  local SRC=$3
+  local TGT=$4
+  local JOINT_VOCAB_SIZE=$5
+
+  log "Training BPE..."
+  train_and_apply_bpe $MODEL_DIR/bpe_codes $DATA_PREFIX $SRC $TGT $JOINT_VOCAB_SIZE bpe
+  log "Training Language Model..."
+  train_lm $MODEL_DIR ${DATA_PREFIX}.bpe $SRC $TGT
+  log "Training Translation Model..."
+  train_translation $MODEL_DIR ${DATA_PREFIX}.bpe $SRC $TGT
+  log "Tuning..."
+  tuning $MODEL_DIR ${DATA_PREFIX}.bpe $SRC $TGT
+  log "Done."
+}
