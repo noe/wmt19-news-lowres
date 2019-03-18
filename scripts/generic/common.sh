@@ -173,18 +173,27 @@ train_translation(){
 
   mkdir -p $MODEL_DIR/model
 
-  MODEL_DIR=$(realpath $MODEL_DIR)
+  local MODEL_DIR=$(realpath $MODEL_DIR)
+
+  # Factor is 0 unless you do something with factored translation models
+  local FACTOR=0
+
+  # Order is the size of N-grams to be used. Here we use a bit longer ngrams
+  # because we are using subwords
+  local ORDER=7
+
+  # Type 8 --> KenLM
+  local LM_TYPE=8
+
+  local LM_FILE=$MODEL_DIR/lm/lm.blm.$TGT
 
   LC_ALL=C $MOSES_SCRIPTS/training/train-model.perl \
      -root-dir $MODEL_DIR \
      -corpus $(realpath $DATA_PREFIX) \
      -f $SRC -e $TGT \
      -alignment grow-diag-final-and \
-     --score-options '--GoodTuring' \
      -reordering msd-bidirectional-fe \
-     -reordering-factors 0-0 \
-     -translation-factors 0-0 \
-     -lm 0:5:$MODEL_DIR/lm/lm.blm.$TGT:8 \
+     -lm $FACTOR:$ORDER:$LM_FILE:$LM_TYPE \
      -external-bin-dir $MOSES_DIR/tools \
      -mgiza \
      >& $MODEL_DIR/training.out
@@ -230,15 +239,18 @@ train_moses(){
   apply_bpe $MODEL_DIR/bpe_codes $DEV_DATA_PREFIX $SRC $TGT bpe
 
   log "Cleaning corpus (again)..."
-  # Clean again after BPE to ensure mgiza does not find any sentence with ratio > 9 (--> segfault)
-  LC_ALL=C $MOSES_SCRIPTS/training/clean-corpus-n.perl -ratio 9 \
+  # Clean again after BPE to ensure mgiza does not find any sentence with ratio > 9
+  LC_ALL=C $MOSES_SCRIPTS/training/clean-corpus-n.perl -ratio 6 \
         ${TRAIN_DATA_PREFIX}.bpe $SRC $TGT ${TRAIN_DATA_PREFIX}.bpe.clean 2 80
 
   log "Training Language Model..."
-  train_lm $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe $SRC $TGT
+  train_lm $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe.clean $SRC $TGT
+
   log "Training Translation Model..."
   train_translation $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe.clean $SRC $TGT
+
   log "Tuning..."
   tuning $MODEL_DIR ${DEV_DATA_PREFIX}.bpe $SRC $TGT
+
   log "Done."
 }
