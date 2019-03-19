@@ -30,10 +30,10 @@ TMP_TRAIN=$(mktemp)
 touch $TMP_TRAIN
 
 # Include Kazakh TV dataset
-cut -f 1,2 $DOWNLOAD_DIR/train/kazakhtv.kk-en.tsv | sort -u >> $TMP_TRAIN
+cut -f 1,2 $DOWNLOAD_DIR/train/kk-en/kazakhtv.kk-en.tsv | sort -u >> $TMP_TRAIN
 
 # Include news commentary (reverse it to be kk-en)
-sed 's,\(.*\)\t\(.*\),\2\t\1,g' $DOWNLOAD_DIR/train/news-commentary-v14-wmt19.en-kk.tsv | sort -u >> $TMP_TRAIN
+sed 's,\(.*\)\t\(.*\),\2\t\1,g' $DOWNLOAD_DIR/train/kk-en/news-commentary-v14-wmt19.en-kk.tsv | sort -u >> $TMP_TRAIN
 
 # We exclude wikititles due to its very poor quality
 # cat $DOWNLOAD_DIR/train/wikititles-v1.kk-en.tsv >> $TMP_TRAIN
