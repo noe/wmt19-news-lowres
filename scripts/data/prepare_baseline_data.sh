@@ -75,8 +75,8 @@ deterministic_shuf_split(){
   local LANG=$3
   local TMP_FILE=$(mktemp)
   cat $PREFIX.$LANG | shuf --random-source=<(get_seeded_random $SEED) > $TMP_FILE
-  head -1566 $TMP_FILE > $OUTPUT_DIR/dev.$LANG
-  tail -n+1567 $TMP_FILE > $OUTPUT_DIR/test.$LANG
+  head -1566 $TMP_FILE > $OUTPUT_DIR/dev.tok.tc.$LANG
+  tail -n+1567 $TMP_FILE > $OUTPUT_DIR/test.tok.tc.$LANG
   rm $TMP_FILE
 }
 
