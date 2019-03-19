@@ -108,6 +108,6 @@ deterministic_shuf_split 42 $DEVTEST_PREFIX.tok.tc kk
 deterministic_shuf_split 42 $DEVTEST_PREFIX.tok.tc en
 rm $DEVTEST_PREFIX.tok.tc.{en,kk}
 
-log "*** Development data is prepared at $OUTPUT_DIR/dev.{en,kk}"
-log "*** Test data is prepared at $OUTPUT_DIR/test.{en,kk}"
+log "*** Development data is prepared at $OUTPUT_DIR/dev.tok.tc.{en,kk}"
+log "*** Test data is prepared at $OUTPUT_DIR/test.tok.tc.{en,kk}"
 
