@@ -156,10 +156,11 @@ train_lm(){
   local DATA_PREFIX=$2
   local SRC=$3
   local TGT=$4
+  local NGRAM_ORDER=$5
 
   mkdir -p $MODEL_DIR/lm
 
-  $MOSES_DIR/bin/lmplz -o 3 < $DATA_PREFIX.$TGT > $MODEL_DIR/lm/lm.arpa.$TGT
+  $MOSES_DIR/bin/lmplz -o $NGRAM_ORDER < $DATA_PREFIX.$TGT > $MODEL_DIR/lm/lm.arpa.$TGT
   $MOSES_DIR/bin/build_binary $MODEL_DIR/lm/lm.arpa.$TGT $MODEL_DIR/lm/lm.blm.$TGT
 }
 
@@ -170,6 +171,7 @@ train_translation(){
   local DATA_PREFIX=$2
   local SRC=$3
   local TGT=$4
+  local NGRAM_ORDER=$5
 
   mkdir -p $MODEL_DIR/model
 
@@ -177,10 +179,6 @@ train_translation(){
 
   # Factor is 0 unless you do something with factored translation models
   local FACTOR=0
-
-  # Order is the size of N-grams to be used. Here we use a bit longer ngrams
-  # because we are using subwords
-  local ORDER=7
 
   # Type 8 --> KenLM
   local LM_TYPE=8
@@ -193,7 +191,7 @@ train_translation(){
      -f $SRC -e $TGT \
      -alignment grow-diag-final-and \
      -reordering msd-bidirectional-fe \
-     -lm $FACTOR:$ORDER:$LM_FILE:$LM_TYPE \
+     -lm $FACTOR:$NGRAM_ORDER:$LM_FILE:$LM_TYPE \
      -external-bin-dir $MOSES_DIR/tools \
      -mgiza \
      >& $MODEL_DIR/training.out
@@ -231,6 +229,9 @@ train_moses(){
   local SRC=$4
   local TGT=$5
   local JOINT_VOCAB_SIZE=$6
+  # Order is the size of N-grams to be used. Here we use a bit longer ngrams
+  # because we are using subwords
+  local NGRAM_ORDER=${7:-6}
 
   ## Note : DATA MUST BE ALREADY TOKENIZED AND TRUECASED BEFORE THIS
 
@@ -244,10 +245,10 @@ train_moses(){
         ${TRAIN_DATA_PREFIX}.bpe $SRC $TGT ${TRAIN_DATA_PREFIX}.bpe.clean 2 80
 
   log "Training Language Model..."
-  train_lm $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe.clean $SRC $TGT
+  train_lm $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe.clean $SRC $TGT $NGRAM_ORDER
 
   log "Training Translation Model..."
-  train_translation $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe.clean $SRC $TGT
+  train_translation $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe.clean $SRC $TGT $NGRAM_ORDER
 
   log "Tuning..."
   tuning $MODEL_DIR ${DEV_DATA_PREFIX}.bpe $SRC $TGT
