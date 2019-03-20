@@ -220,6 +220,13 @@ tuning(){
       &> $MODEL_DIR/mert.out & 
 }
 
+### Function to escape in-place chars that are special to Moses ##############
+escape_special_chars(){
+  local FILE=$1
+  local TMP_FILE=$(mktemp)
+  $MOSES_SCRIPTS/tokenizer/escape-special-chars.perl < $FILE > $TMP_FILE
+  mv $TMP_FILE $FILE
+}
 
 ### Function to train a Moses system end-to-end ##############################
 train_moses(){
@@ -243,6 +250,9 @@ train_moses(){
   # Clean again after BPE to ensure mgiza does not find any sentence with ratio > 9
   LC_ALL=C $MOSES_SCRIPTS/training/clean-corpus-n.perl -ratio 6 \
         ${TRAIN_DATA_PREFIX}.bpe $SRC $TGT ${TRAIN_DATA_PREFIX}.bpe.clean 2 80
+
+  escape_special_chars ${TRAIN_DATA_PREFIX}.bpe.clean.${SRC}
+  escape_special_chars ${TRAIN_DATA_PREFIX}.bpe.clean.${TGT}
 
   log "Training Language Model..."
   train_lm $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe.clean $SRC $TGT $NGRAM_ORDER
