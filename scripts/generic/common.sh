@@ -239,9 +239,13 @@ tuning(){
 ### Function to escape in-place chars that are special to Moses ##############
 escape_special_chars(){
   local FILE=$1
-  local TMP_FILE=$(mktemp)
-  $MOSES_SCRIPTS/tokenizer/escape-special-chars.perl < $FILE > $TMP_FILE
-  mv $TMP_FILE $FILE
+  if [ "$FILE" == "" ]; then
+    $MOSES_SCRIPTS/tokenizer/escape-special-chars.perl
+  else
+    local TMP_FILE=$(mktemp)
+    $MOSES_SCRIPTS/tokenizer/escape-special-chars.perl < $FILE > $TMP_FILE
+    mv $TMP_FILE $FILE
+  fi
 }
 
 ### Function to train a Moses system end-to-end ##############################
@@ -256,8 +260,8 @@ train_moses(){
   # because we are using subwords
   local NGRAM_ORDER=${7:-6}
 
-  local TGT_TRUECASING_MODEL=$(basedir $TRAIN_DATA_PREFIX)/truecasing.$TGT
-  test -e $TGT_TRUECASING_MODEL && cp $TGT_TRUECASING_MODEL $MODEL_DIR/
+  local SRC_TRUECASING_MODEL=$(basedir $TRAIN_DATA_PREFIX)/truecasing.$SRC
+  test -e $SRC_TRUECASING_MODEL && cp $SRC_TRUECASING_MODEL $MODEL_DIR/
 
   ## Note : DATA MUST BE ALREADY TOKENIZED AND TRUECASED BEFORE THIS
 
@@ -289,19 +293,21 @@ train_moses(){
 ### Function to decode using a Moses engine ###################################
 moses_decode(){
   local MODEL_DIR=$1
-  local LANG=$2
+  local SRC=$2
+  local TGT=$3
   local INI_FILE=$MODEL_DIR/model/moses.ini
 
-  local TRUECASING_MODEL=$MODEL_DIR/truecasing.$LANG
+  local SRC_TRUECASING_MODEL=$MODEL_DIR/truecasing.$SRC
 
-  test -e $TRUECASING_MODEL || die "Truecasing model $TRUECASING_MODEL not present."
+  test -e $SRC_TRUECASING_MODEL || die "Source lang truecasing model $SRC_TRUECASING_MODEL not present."
 
-  tokenize $LANG \
-     | truecase $TRUECASING_MODEL \
-     | $SUBWORD_NMT_DIR/subword_nmt/apply_bpe.py -c $MODEL_DIR/bpe_codes.$LANG \
+  tokenize $SRC \
+     | truecase $SRC_TRUECASING_MODEL \
+     | $SUBWORD_NMT_DIR/subword_nmt/apply_bpe.py -c $MODEL_DIR/bpe_codes.$SRC \
+     | escape_special_chars \
      | $MOSES_DIR/bin/moses -f $INI_FILE 2> /dev/null \
      | sed 's, @-@ ,-,g' \
      | sed -r 's/(@@ )|(@@ ?$)//g' \
-     | detokenize $LANG \
+     | detokenize $TGT \
      | detruecase
 }

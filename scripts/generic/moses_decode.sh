@@ -1,16 +1,17 @@
-#!/bin/bash
-
+#!/bin/bash -x
 
 : ${1:?"First argument is the model directory"}
-: ${2:?"Second argument is the target language"}
+: ${2:?"Second argument is the source language"}
+: ${3:?"Third argument is the target language"}
 
 MODEL_DIR=$1
-LANG=$2
+SRC=$2
+TGT=$3
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # load common functions
 . $SCRIPT_DIR/../generic/common.sh
 
-moses_decode $MODEL_DIR $LANG
+moses_decode $MODEL_DIR $SRC $TGT
 
