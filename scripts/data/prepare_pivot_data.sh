@@ -136,16 +136,16 @@ prepare_data(){
   for LANG in $SRC $TGT; do
     # Process training data
     log "Processing training [$LANG] data..."
-    tokenize $PREFIX.train $LANG > $PREFIX.train.tok.$LANG
+    tokenize $LANG < $PREFIX.train.$LANG > $PREFIX.train.tok.$LANG
     rm $PREFIX.train.$LANG
     train_truecaser $PREFIX.train.tok.$LANG $OUTPUT_DIR/truecasing.$LANG
-    truecase $PREFIX.train.tok.$LANG $OUTPUT_DIR/truecasing.$LANG > $PREFIX.train.tok.tc.$LANG
+    truecase $OUTPUT_DIR/truecasing.$LANG < $PREFIX.train.tok.$LANG > $PREFIX.train.tok.tc.$LANG
     rm $PREFIX.train.tok.$LANG
 
     # Process dev data
-    tokenize $PREFIX.dev $LANG > $PREFIX.dev.tok.$LANG
+    tokenize $LANG < $PREFIX.dev.$LANG > $PREFIX.dev.tok.$LANG
     rm $PREFIX.dev.$LANG
-    truecase $PREFIX.dev.tok.$LANG $OUTPUT_DIR/truecasing.$LANG > $PREFIX.dev.tok.tc.$LANG
+    truecase $OUTPUT_DIR/truecasing.$LANG < $PREFIX.dev.tok.$LANG > $PREFIX.dev.tok.tc.$LANG
     rm $PREFIX.dev.tok.$LANG
   done
 }

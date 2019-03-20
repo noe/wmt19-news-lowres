@@ -53,10 +53,10 @@ rm $TMP_TRAIN
 for LANG in en kk
 do
   log "Processing training [$LANG] data..."
-  tokenize $PREFIX $LANG > $PREFIX.tok.$LANG
+  tokenize $LANG < $PREFIX.$LANG > $PREFIX.tok.$LANG
   rm $PREFIX.$LANG
   train_truecaser $PREFIX.tok.$LANG $OUTPUT_DIR/truecasing.$LANG
-  truecase $PREFIX.tok.$LANG $OUTPUT_DIR/truecasing.$LANG > $PREFIX.tok.tc.$LANG
+  truecase $OUTPUT_DIR/truecasing.$LANG < $PREFIX.tok.$LANG > $PREFIX.tok.tc.$LANG
   rm $PREFIX.tok.$LANG
 done
 
@@ -97,9 +97,9 @@ cat $DOWNLOAD_DIR/dev/newsdev2019-kken-src.kk.sgm \
 for LANG in en kk
 do
   log "Processing dev/test [$LANG] data..."
-  tokenize $DEVTEST_PREFIX $LANG > $DEVTEST_PREFIX.tok.$LANG
+  tokenize $LANG < $DEVTEST_PREFIX.$LANG > $DEVTEST_PREFIX.tok.$LANG
   rm $DEVTEST_PREFIX.$LANG
-  truecase $DEVTEST_PREFIX.tok.$LANG $OUTPUT_DIR/truecasing.$LANG > $DEVTEST_PREFIX.tok.tc.$LANG
+  truecase $OUTPUT_DIR/truecasing.$LANG < $DEVTEST_PREFIX.tok.$LANG > $DEVTEST_PREFIX.tok.tc.$LANG
   rm $DEVTEST_PREFIX.tok.$LANG
 done
 

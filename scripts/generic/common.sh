@@ -23,14 +23,13 @@ get_seeded_random(){
 
 ### Function to tokenize and normalize punctuation of a file ##################
 tokenize(){
-  local PREFIX=$1
-  local LANG=$2
+  local LANG=$1
   local LANG_FLAG=$LANG
   if [ "$LANG" == "kk" ]; then
     LANG_FLAG=ru
   fi
 
-  LC_ALL=C $MOSES_SCRIPTS/tokenizer/normalize-punctuation.perl -l $LANG_FLAG < $PREFIX.$LANG \
+  LC_ALL=C $MOSES_SCRIPTS/tokenizer/normalize-punctuation.perl -l $LANG_FLAG \
      | LC_ALL=C $MOSES_SCRIPTS/tokenizer/tokenizer.perl -q -no-escape -a -l $LANG_FLAG
 }
 
@@ -73,10 +72,9 @@ train_truecaser(){
 
 ### Function to apply a truecasing model ######################################
 truecase(){
-  local FILE=$1
-  local MODEL=$2
+  local MODEL=$1
   # it works also with cyrillic script
-  cat $FILE | LC_ALL=C $MOSES_SCRIPTS/recaser/truecase.perl -model $MODEL
+  LC_ALL=C $MOSES_SCRIPTS/recaser/truecase.perl -model $MODEL
 }
 
 
@@ -290,7 +288,11 @@ moses_decode(){
   local MODEL_DIR=$1
   local LANG=$2
   local INI_FILE=$MODEL_DIR/model/moses.ini
-  $MOSES_DIR/bin/moses -f $INI_FILE 2> /dev/null \
+
+  tokenize $LANG \
+     | truecase $MODEL_DIR/truecasing.$LANG \
+     | $SUBWORD_NMT_DIR/subword_nmt/apply_bpe.py -c $MODEL_DIR/bpe_codes.$LANG \
+     | $MOSES_DIR/bin/moses -f $INI_FILE 2> /dev/null \
      | sed 's, @-@ ,-,g' \
      | sed -r 's/(@@ )|(@@ ?$)//g' \
      | detokenize $LANG \
