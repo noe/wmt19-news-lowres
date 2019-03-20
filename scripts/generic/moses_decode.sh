@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 : ${1:?"First argument is the model directory"}
 : ${2:?"Second argument is the source language"}
