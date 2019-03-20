@@ -256,6 +256,9 @@ train_moses(){
   # because we are using subwords
   local NGRAM_ORDER=${7:-6}
 
+  local TGT_TRUECASING_MODEL=$(basedir $TRAIN_DATA_PREFIX)/truecasing.$TGT
+  test -e $TGT_TRUECASING_MODEL && cp $TGT_TRUECASING_MODEL $MODEL_DIR/
+
   ## Note : DATA MUST BE ALREADY TOKENIZED AND TRUECASED BEFORE THIS
 
   log "Training BPE..."
@@ -289,8 +292,12 @@ moses_decode(){
   local LANG=$2
   local INI_FILE=$MODEL_DIR/model/moses.ini
 
+  local TRUECASING_MODEL=$MODEL_DIR/truecasing.$LANG
+
+  test -e $TRUECASING_MODEL || die "Truecasing model $TRUECASING_MODEL not present."
+
   tokenize $LANG \
-     | truecase $MODEL_DIR/truecasing.$LANG \
+     | truecase $TRUECASING_MODEL \
      | $SUBWORD_NMT_DIR/subword_nmt/apply_bpe.py -c $MODEL_DIR/bpe_codes.$LANG \
      | $MOSES_DIR/bin/moses -f $INI_FILE 2> /dev/null \
      | sed 's, @-@ ,-,g' \
