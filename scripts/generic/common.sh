@@ -35,6 +35,18 @@ tokenize(){
 }
 
 
+### Function to detokenize ####################################################
+detokenize(){
+  local LANG=$1
+  local LANG_FLAG=$LANG
+  if [ "$LANG" == "kk" ]; then
+    LANG_FLAG=ru
+  fi
+
+  LC_ALL=C $MOSES_SCRIPTS/tokenizer/detokenizer.perl -l $LANG_FLAG 2> /dev/null
+}
+
+
 ### Function to clean a corpus ################################################
 clean_corpus(){
   local PREFIX=$1
@@ -68,7 +80,13 @@ truecase(){
 }
 
 
-#### Function to compute simple stuff ##############################
+### Function to de-truecase ###################################################
+detruecase(){
+  LC_ALL=C $MOSES_SCRIPTS/recaser/detruecase.perl
+}
+
+
+#### Function to compute simple stuff #########################################
 compute() {
     if hash bc 2>/dev/null; then
         echo "$@" | bc
@@ -264,4 +282,17 @@ train_moses(){
   tuning $MODEL_DIR ${DEV_DATA_PREFIX}.bpe $SRC $TGT
 
   log "Done."
+}
+
+
+### Function to decode using a Moses engine ###################################
+moses_decode(){
+  local MODEL_DIR=$1
+  local LANG=$2
+  local INI_FILE=$MODEL_DIR/model/moses.ini
+  $MOSES_DIR/bin/moses -f $INI_FILE 2> /dev/null \
+     | sed 's, @-@ ,-,g' \
+     | sed -r 's/(@@ )|(@@ ?$)//g' \
+     | detokenize $LANG \
+     | detruecase
 }
