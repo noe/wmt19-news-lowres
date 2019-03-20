@@ -260,7 +260,7 @@ train_moses(){
   # because we are using subwords
   local NGRAM_ORDER=${7:-6}
 
-  local SRC_TRUECASING_MODEL=$(basedir $TRAIN_DATA_PREFIX)/truecasing.$SRC
+  local SRC_TRUECASING_MODEL=$(basename $TRAIN_DATA_PREFIX)/truecasing.$SRC
   test -e $SRC_TRUECASING_MODEL && cp $SRC_TRUECASING_MODEL $MODEL_DIR/
 
   ## Note : DATA MUST BE ALREADY TOKENIZED AND TRUECASED BEFORE THIS
