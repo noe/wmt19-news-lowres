@@ -329,7 +329,7 @@ moses_decode(){
      | truecase $SRC_TRUECASING_MODEL \
      | maybe_bpe $MODEL_DIR $SRC $TOKEN_GRANULARITY \
      | escape_special_chars \
-     | $MOSES_DIR/bin/moses -f $INI_FILE 2> /dev/null \
+     | $MOSES_DIR/bin/moses -f $INI_FILE -threads 12  2> /dev/null \
      | sed 's, @-@ ,-,g' \
      | sed -r 's/(@@ )|(@@ ?$)//g' \
      | detokenize $TGT \
