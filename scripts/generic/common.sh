@@ -255,38 +255,58 @@ train_moses(){
   local DEV_DATA_PREFIX=$3
   local SRC=$4
   local TGT=$5
-  local JOINT_VOCAB_SIZE=$6
+  local VOCAB_SIZE=$6
+  local TOKEN_GRANULARITY=${7:-"subword"}
+
   # Order is the size of N-grams to be used. Here we use a bit longer ngrams
   # because we are using subwords
-  local NGRAM_ORDER=${7:-6}
+  local NGRAM_ORDER=${8:-6}
 
-  local SRC_TRUECASING_MODEL=$(basename $TRAIN_DATA_PREFIX)/truecasing.$SRC
+  local SRC_TRUECASING_MODEL=$(dirname $TRAIN_DATA_PREFIX)/truecasing.$SRC
   test -e $SRC_TRUECASING_MODEL && cp $SRC_TRUECASING_MODEL $MODEL_DIR/
 
   ## Note : DATA MUST BE ALREADY TOKENIZED AND TRUECASED BEFORE THIS
 
-  log "Training BPE..."
-  train_and_apply_bpe $MODEL_DIR/bpe_codes $TRAIN_DATA_PREFIX $SRC $TGT $JOINT_VOCAB_SIZE bpe
-  apply_bpe $MODEL_DIR/bpe_codes $DEV_DATA_PREFIX $SRC $TGT bpe
+  if [ "$TOKEN_GRANULARITY" == "subword" ]; then
+    log "Training BPE..."
+    train_and_apply_bpe $MODEL_DIR/bpe_codes $TRAIN_DATA_PREFIX $SRC $TGT $VOCAB_SIZE bpe
+    apply_bpe $MODEL_DIR/bpe_codes $DEV_DATA_PREFIX $SRC $TGT bpe
+    TRAIN_DATA_PREFIX=${TRAIN_DATA_PREFIX}.bpe
+    DEV_DATA_PREFIX=${DEV_DATA_PREFIX}.bpe
+  fi
 
   log "Cleaning corpus (again)..."
   # Clean again after BPE to ensure mgiza does not find any sentence with ratio > 9
   LC_ALL=C $MOSES_SCRIPTS/training/clean-corpus-n.perl -ratio 6 \
-        ${TRAIN_DATA_PREFIX}.bpe $SRC $TGT ${TRAIN_DATA_PREFIX}.bpe.clean 2 80
+        ${TRAIN_DATA_PREFIX} $SRC $TGT ${TRAIN_DATA_PREFIX}.clean 2 80
 
-  escape_special_chars ${TRAIN_DATA_PREFIX}.bpe.clean.${SRC}
-  escape_special_chars ${TRAIN_DATA_PREFIX}.bpe.clean.${TGT}
+  escape_special_chars ${TRAIN_DATA_PREFIX}.clean.${SRC}
+  escape_special_chars ${TRAIN_DATA_PREFIX}.clean.${TGT}
 
   log "Training Language Model..."
-  train_lm $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe.clean $SRC $TGT $NGRAM_ORDER
+  train_lm $MODEL_DIR ${TRAIN_DATA_PREFIX}.clean $SRC $TGT $NGRAM_ORDER
 
   log "Training Translation Model..."
-  train_translation $MODEL_DIR ${TRAIN_DATA_PREFIX}.bpe.clean $SRC $TGT $NGRAM_ORDER
+  train_translation $MODEL_DIR ${TRAIN_DATA_PREFIX}.clean $SRC $TGT $NGRAM_ORDER
 
   log "Tuning..."
-  tuning $MODEL_DIR ${DEV_DATA_PREFIX}.bpe $SRC $TGT
+  tuning $MODEL_DIR ${DEV_DATA_PREFIX} $SRC $TGT
 
   log "Done."
+}
+
+
+### Function to apply BPE or not depending on TOKEN_GRANULARITY ###############
+maybe_bpe(){
+  local MODEL_DIR=$1
+  local LANG=$2
+  local TOKEN_GRANULARITY=$3
+
+  if [ "$TOKEN_GRANULARITY" == "subword" ]; then
+    $SUBWORD_NMT_DIR/subword_nmt/apply_bpe.py -c $MODEL_DIR/bpe_codes.$LANG
+  else
+    cat
+  fi
 }
 
 
@@ -295,6 +315,8 @@ moses_decode(){
   local MODEL_DIR=$1
   local SRC=$2
   local TGT=$3
+  local TOKEN_GRANULARITY=${4:-"subword"}
+
   local INI_FILE=$MODEL_DIR/model/moses.ini
 
   local SRC_TRUECASING_MODEL=$MODEL_DIR/truecasing.$SRC
@@ -303,7 +325,7 @@ moses_decode(){
 
   tokenize $SRC \
      | truecase $SRC_TRUECASING_MODEL \
-     | $SUBWORD_NMT_DIR/subword_nmt/apply_bpe.py -c $MODEL_DIR/bpe_codes.$SRC \
+     | maybe_bpe $MODEL_DIR $SRC $TOKEN_GRANULARITY \
      | escape_special_chars \
      | $MOSES_DIR/bin/moses -f $INI_FILE 2> /dev/null \
      | sed 's, @-@ ,-,g' \
