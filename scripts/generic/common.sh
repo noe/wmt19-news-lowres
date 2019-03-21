@@ -262,6 +262,8 @@ train_moses(){
   # because we are using subwords
   local NGRAM_ORDER=${8:-6}
 
+  mkdir -p $MODEL_DIR
+
   local SRC_TRUECASING_MODEL=$(dirname $TRAIN_DATA_PREFIX)/truecasing.$SRC
   test -e $SRC_TRUECASING_MODEL && cp $SRC_TRUECASING_MODEL $MODEL_DIR/
 
