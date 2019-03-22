@@ -236,6 +236,18 @@ tuning(){
       &> $MODEL_DIR/mert.out & 
 }
 
+
+### Function to reduce the size of the phrase table ##########################
+### (see http://www.statmt.org/moses/?n=Advanced.RuleTables#ntoc3)
+compact_phrase_table(){
+  local MODEL_DIR=$1
+  $MOSES_DIR/bin/processPhraseTableMin \
+      -in $MODEL_DIR/model/phrase-table.gz \
+      -out $MODEL_DIR/model/phrase-table \
+      -nscores 4 -threads 4
+  sed 's,phrase-table.gz,phrase-table.minphr,g' -i $MODEL_DIR/model/moses.ini
+}
+
 ### Function to escape in-place chars that are special to Moses ##############
 escape_special_chars(){
   local FILE=$1
@@ -294,6 +306,11 @@ train_moses(){
   log "Tuning..."
   tuning $MODEL_DIR ${DEV_DATA_PREFIX} $SRC $TGT
 
+  log "Compacting phrase table..."
+  # Using subwords needs larger ngram order, which leads to larger phrase
+  # table. We should compact it in order not to consume A LOT of memory.
+  compact_phrase_table $MODEL_DIR
+
   log "Done."
 }
 
@@ -335,3 +352,4 @@ moses_decode(){
      | detokenize $TGT \
      | detruecase
 }
+
