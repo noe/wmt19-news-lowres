@@ -246,6 +246,7 @@ compact_phrase_table(){
       -out $MODEL_DIR/model/phrase-table \
       -nscores 4 -threads 4
   sed 's,phrase-table.gz,phrase-table.minphr,g' -i $MODEL_DIR/model/moses.ini
+  sed 's,PhraseDictionaryMemory,PhraseDictionaryCompact,g' -i $MODEL_DIR/model/moses.ini
 }
 
 ### Function to escape in-place chars that are special to Moses ##############
