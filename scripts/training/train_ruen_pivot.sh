@@ -14,7 +14,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 TRAIN_DATA_PREFIX=$DATA_ROOT/pivoting/en-ru/corpus.en-ru.train.tok.tc
 DEV_DATA_PREFIX=$DATA_ROOT/pivoting/en-ru/corpus.en-ru.dev.tok.tc
-SRC=en
-TGT=ru
+SRC=ru
+TGT=en
 
 train_moses $MODEL_DIR $TRAIN_DATA_PREFIX $DEV_DATA_PREFIX $SRC $TGT 32000
