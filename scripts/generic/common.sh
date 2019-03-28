@@ -176,7 +176,8 @@ train_lm(){
 
   mkdir -p $MODEL_DIR/lm
 
-  $MOSES_DIR/bin/lmplz -o $NGRAM_ORDER < $DATA_PREFIX.$TGT > $MODEL_DIR/lm/lm.arpa.$TGT
+  TMP=${TMPDIR:-"/tmp"}/lm
+  $MOSES_DIR/bin/lmplz -o $NGRAM_ORDER -T $TMP < $DATA_PREFIX.$TGT > $MODEL_DIR/lm/lm.arpa.$TGT
   $MOSES_DIR/bin/build_binary $MODEL_DIR/lm/lm.arpa.$TGT $MODEL_DIR/lm/lm.blm.$TGT
 }
 
