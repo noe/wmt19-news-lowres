@@ -59,9 +59,9 @@ paracrawl(){
 
 yandex_corpus(){
   # Downloading the Yandex corpus requires logging in, after which you are given a link
-  # that is valid for 2 days. This download link expires on 11/03/2019.
+  # that is valid for 2 days. This download link expires on 01/04/2019.
   # The yandex corpus can be downloaded from https://translate.yandex.ru/corpus?lang=en
-  wget 'https://translate.yandex.net/corpus/1mcorpus.zip?st=nCzaPNr7sOSr3DtWiG3buA&e=1552324310&ui=ru' -O 1mcorpus.zip
+  wget 'https://translate.yandex.net/corpus/1mcorpus.zip?st=Xxh9DXwSb00wuMmNM2_tFw&e=1554118732&ui=ru' -O 1mcorpus.zip
 }
 
 un_corpus_ruen(){
