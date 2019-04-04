@@ -38,11 +38,10 @@ do
   log "Processing development [$LANG] data..."
   tokenize $LANG < $DEV_PREFIX.$LANG > $DEV_PREFIX.tok.$LANG
   truecase $TRAIN_DIR/truecasing.$LANG < $DEV_PREFIX.tok.$LANG > $DEV_PREFIX.tok.tc.$LANG
-
 done
 
-train_and_apply_bpe $TRAIN_DIR/bpe_codes $TRAIN_PREFIX $SRC $TGT $VOCAB_SIZE bpe
-apply_bpe $TRAIN_DIR/bpe_codes $DEV_PREFIX $SRC $TGT bpe
+train_and_apply_bpe $TRAIN_DIR/bpe_codes $TRAIN_PREFIX.tok.tc $SRC $TGT $VOCAB_SIZE bpe
+apply_bpe $TRAIN_DIR/bpe_codes $DEV_PREFIX.tok.tc $SRC $TGT bpe
 
 
 # Binarize the dataset

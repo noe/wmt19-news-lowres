@@ -4,9 +4,11 @@
 
 conda activate nlp_pytorch
 
-BIN_DATA_DIR=${1:?"First argument is the binary data directory"}
-MODEL_DIR=${2:?"Second argument is the model directory"}
+: ${1:?"First argument is the binary data directory"}
+: ${2:?"Second argument is the model directory"}
 
+BIN_DATA_DIR=$1
+MODEL_DIR=$2
 
 # This file is based on fairseq's translation example:
 # https://github.com/pytorch/fairseq/blob/b87c536651649ad71dd8766a409ef1c032b55afa/examples/translation/README.md
@@ -21,6 +23,7 @@ fairseq-train $BIN_DATA_DIR \
   --user-dir ~/fairseq-tensorboard/fstb \
   --task monitored_translation \
   --arch $ARCH \
+  --update-freq 4 \
   --optimizer adam \
   --adam-betas '(0.9, 0.98)' \
   --clip-norm 0.0 \
@@ -33,7 +36,7 @@ fairseq-train $BIN_DATA_DIR \
   --weight-decay 0.0 \
   --criterion label_smoothed_cross_entropy \
   --label-smoothing 0.1 \
-  --max-tokens 3584 \
-  --fp16
+  --max-tokens 4000 \
+  --fp16 \
   --save-dir $MODEL_DIR
 
