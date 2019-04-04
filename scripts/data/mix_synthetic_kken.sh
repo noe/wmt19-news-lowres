@@ -25,6 +25,7 @@ PARALLEL_KK="$PARALLEL_PREFIX.kk $PARALLEL_PREFIX.kk $PARALLEL_PREFIX.kk"
 
 
 TMP_DIR=$(mktemp -d)
+mkdir -p $TMP_DIR
 TMP_PREFIX=$TMP_DIR/train.kken
 
 # English is tokenized both in the parallel data and in the synthetic one
@@ -35,7 +36,7 @@ cat $PARALLEL_KK $SYNTH_PREFIX.kk | sed 's, @-@ ,-,g' > $TMP_PREFIX.kk
 shuf --random-source=<(get_seeded_random $SEED) -o $TMP_PREFIX.en < $TMP_PREFIX.en
 shuf --random-source=<(get_seeded_random $SEED) -o $TMP_PREFIX.kk < $TMP_PREFIX.kk
 
-mv $TMP_PREFIX.en > $OUTPUT_PREFIX.en
-mv $TMP_PREFIX.kk > $OUTPUT_PREFIX.kk
+mv $TMP_PREFIX.en $OUTPUT_PREFIX.en
+mv $TMP_PREFIX.kk $OUTPUT_PREFIX.kk
 
 rmdir $TMP_DIR
