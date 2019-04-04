@@ -1,13 +1,14 @@
 #!/bin/bash
 
-source activate nlp_pytorch
+. ~/.bash_profile
+
+conda activate nlp_pytorch
 
 SRC=${1:?"First argument is the source language"}
 TGT=${2:?"Second argument is the target language"}
 TRAIN_PREFIX=${3:?"Third argument is the training data prefix"}
 DEV_PREFIX=${4:?"Fourth argument is the dev data prefix"}
-TEST_PREFIX=${5:?"Fifth argument is the test data prefix"}
-BIN_DATA_DIR=${6:?"Sixth argument is the output data directory"}
+BIN_DATA_DIR=${5:?"Sixth argument is the output data directory"}
 
 # Binarize the dataset
 fairseq-preprocess \

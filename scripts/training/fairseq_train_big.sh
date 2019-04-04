@@ -1,6 +1,8 @@
 #!/bin/bash
 
-source activate nlp_pytorch
+. ~/.bash_profile
+
+conda activate nlp_pytorch
 
 BIN_DATA_DIR=${1:?"First argument is the binary data directory"}
 MODEL_DIR=${2:?"Second argument is the model directory"}
@@ -16,6 +18,8 @@ ARCH=transformer_vaswani_wmt_en_de_big
 # Train the model
 mkdir -p $MODEL_DIR
 fairseq-train $BIN_DATA_DIR \
+  --user-dir ~/fairseq-tensorboard/fstb \
+  --task monitored_translation \
   --arch $ARCH \
   --optimizer adam \
   --adam-betas '(0.9, 0.98)' \
