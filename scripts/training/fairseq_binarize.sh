@@ -10,6 +10,7 @@ SRC=$1
 TGT=$2
 TRAIN_PREFIX=$3
 DEV_PREFIX=$4
+TEST_PREFIX=$4
 
 . ~/.bash_profile
 
@@ -38,20 +39,24 @@ do
   log "Processing development [$LANG] data..."
   tokenize $LANG < $DEV_PREFIX.$LANG > $DEV_PREFIX.tok.$LANG
   truecase $TRAIN_DIR/truecasing.$LANG < $DEV_PREFIX.tok.$LANG > $DEV_PREFIX.tok.tc.$LANG
+
+  tokenize $LANG < $TEST_PREFIX.$LANG > $TEST_PREFIX.tok.$LANG
+  truecase $TRAIN_DIR/truecasing.$LANG < $TEST_PREFIX.tok.$LANG > $TEST_PREFIX.tok.tc.$LANG
 done
 
 train_and_apply_bpe $TRAIN_DIR/bpe_codes $TRAIN_PREFIX.tok.tc $SRC $TGT $VOCAB_SIZE bpe
 apply_bpe $TRAIN_DIR/bpe_codes $DEV_PREFIX.tok.tc $SRC $TGT bpe
+apply_bpe $TRAIN_DIR/bpe_codes $TEST_PREFIX.tok.tc $SRC $TGT bpe
 
 
 # Binarize the dataset
 fairseq-preprocess \
   --source-lang $SRC \
   --target-lang $TGT \
-  --trainpref $TRAIN_PREFIX.tok.tc \
-  --validpref $DEV_PREFIX.tok.tc \
-  --testpref $DEV_PREFIX \
+  --trainpref $TRAIN_PREFIX.tok.tc.bpe \
+  --validpref $DEV_PREFIX.tok.tc.bpe \
+  --testpref $TEST_PREFIX.tok.tc.bpe \
   --destdir $BIN_DATA_DIR \
-  --thresholdtgt 0 \
-  --thresholdsrc 0
+  --thresholdtgt 80 \
+  --thresholdsrc 80
 
