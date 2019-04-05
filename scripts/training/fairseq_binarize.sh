@@ -5,12 +5,13 @@
 : ${2:?"Second argument is the target language"}
 : ${3:?"Third argument is the training data prefix"}
 : ${4:?"Fourth argument is the dev data prefix"}
+: ${5:?"Fifth argument is the test data prefix"}
 
 SRC=$1
 TGT=$2
 TRAIN_PREFIX=$3
 DEV_PREFIX=$4
-TEST_PREFIX=$4
+TEST_PREFIX=$5
 
 . ~/.bash_profile
 
