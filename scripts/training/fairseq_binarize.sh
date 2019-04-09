@@ -57,7 +57,5 @@ fairseq-preprocess \
   --trainpref $TRAIN_PREFIX.tok.tc.bpe \
   --validpref $DEV_PREFIX.tok.tc.bpe \
   --testpref $TEST_PREFIX.tok.tc.bpe \
-  --destdir $BIN_DATA_DIR \
-  --thresholdtgt 80 \
-  --thresholdsrc 80
+  --destdir $BIN_DATA_DIR
 
