@@ -13,7 +13,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . $SCRIPT_DIR/../generic/common.sh
 
 
-SGM_TO_TEXT="LC_ALL=C $MOSES_SCRIPTS/ems/support/input-from-sgm.perl"
+SGM_TO_TEXT=$MOSES_SCRIPTS/ems/support/input-from-sgm.perl
 
 mkdir -p $OUTPUT_DIR
 cd $OUTPUT_DIR
