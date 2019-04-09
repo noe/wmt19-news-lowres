@@ -23,7 +23,7 @@ fairseq-train $BIN_DATA_DIR \
   --user-dir ~/fairseq-tensorboard/fstb \
   --task monitored_translation \
   --arch $ARCH \
-  --update-freq 4 \
+  --update-freq 2 \
   --optimizer adam \
   --adam-betas '(0.9, 0.98)' \
   --clip-norm 0.0 \
@@ -36,7 +36,6 @@ fairseq-train $BIN_DATA_DIR \
   --weight-decay 0.0 \
   --criterion label_smoothed_cross_entropy \
   --label-smoothing 0.1 \
-  --max-tokens 4000 \
-  --fp16 \
+  --max-tokens 3500 \
   --save-dir $MODEL_DIR
 
