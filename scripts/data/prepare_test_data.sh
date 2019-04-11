@@ -1,7 +1,7 @@
 #!/bin/bash
 
 : ${1:?"First argument is the final data directory"}
-: ${2:?"First argument is the output directory"}
+: ${2:?"Second argument is the output directory"}
 
 
 DATA_DIR=$(realpath $1)
